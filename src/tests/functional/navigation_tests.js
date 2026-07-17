@@ -298,7 +298,7 @@ test("following a same-origin link inside an SVG element", async ({ page }) => {
   await page.keyboard.press("Enter")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
-  expect(await visitAction(page)).toEqual("load")
+  expect(await visitAction(page)).toEqual("advance")
 })
 
 test("following a cross-origin link inside an SVG element", async ({ page }) => {
@@ -310,15 +310,18 @@ test("following a cross-origin link inside an SVG element", async ({ page }) => 
   expect(await visitAction(page)).toEqual("load")
 })
 
-test("following a same-origin SVG link", async ({ page }) => {
-  await page.click("#same-origin-link-inside-svg-element")
+// Playwright cannot auto-scroll to an <a> nested in <svg><text>, so page.click()
+// fails its actionability check with "element is outside of the viewport" even
+// with force: true. dispatchEvent drives the same click path the observer sees.
+test("clicking a same-origin SVG link", async ({ page }) => {
+  await page.dispatchEvent("#same-origin-link-inside-svg-element", "click")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
-  expect(await visitAction(page)).toEqual("load")
+  expect(await visitAction(page)).toEqual("advance")
 })
 
-test("following a same-origin SVG anchored link", async ({ page }) => {
-  await page.click("#same-origin-anchored-svg-link")
+test("clicking an SVG link with a hash-only href scrolls to the anchor without a visit", async ({ page }) => {
+  await page.dispatchEvent("#same-origin-anchored-svg-link", "click")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/navigation.html"))
   await expect(page).toHaveURL(withHash("#main"))

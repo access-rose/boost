@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url'
 import { esbuildPlugin } from '@web/dev-server-esbuild'
 import { playwrightLauncher } from '@web/test-runner-playwright'
 
@@ -32,6 +33,13 @@ export default {
     }
   },
   plugins: [
-    esbuildPlugin({ ts: true, target: "es2020" })
+    // target must match tsconfig's `target`. At es2020 esbuild downlevels the
+    // #private fields used across 19 source files into WeakMap shims, so the
+    // unit tests would exercise different code from the shipped bundle.
+    esbuildPlugin({
+      ts: true,
+      target: "es2022",
+      tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url))
+    })
   ]
 }

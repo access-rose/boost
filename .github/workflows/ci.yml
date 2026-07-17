@@ -17,6 +17,9 @@ jobs:
     - run: yarn run playwright install --with-deps
     - run: yarn build
 
+    - name: Typecheck
+      run: yarn typecheck
+
     - name: Set Chrome Version
       run: |
         CHROMEVER="$(chromedriver --version | cut -d' ' -f2)"
