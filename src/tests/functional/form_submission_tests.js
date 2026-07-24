@@ -554,6 +554,14 @@ test("invalid form submission with long form", async ({ page }) => {
   await expect(page.locator("#frame form.reject"), "replaces entire page").not.toBeAttached()
 })
 
+test("form submission returning 200 without a redirect renders in place", async ({ page }) => {
+  await page.click("#reject form.ok_without_redirect input[type=submit]")
+
+  await expect(page.locator("h1"), "renders the response HTML").toHaveText("Form With Errors")
+  await expect(page, "does not navigate to the form action").toHaveURL(withPathname("/src/tests/fixtures/form.html"))
+  await expect(page.locator("#reject form.ok_without_redirect"), "replaces entire page").not.toBeAttached()
+})
+
 test("invalid form submission with server error status", async ({ page }) => {
   await expect(page.locator("head > #form-fixture-styles")).toBeAttached()
   await page.click("#reject form.internal_server_error input[type=submit]")

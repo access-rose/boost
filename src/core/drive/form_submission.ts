@@ -160,19 +160,18 @@ export class FormSubmission implements FetchRequestDelegate {
   }
 
   requestSucceededWithResponse(request: FetchRequest, response: FetchResponse) {
-    if (response.clientError || response.serverError) {
+    if (
+      response.clientError ||
+      response.serverError ||
+      (this.requestMustRedirect(request) && responseSucceededWithoutRedirect(response))
+    ) {
       this.delegate.formSubmissionFailedWithResponse(this, response)
       return
     }
 
-    if (this.requestMustRedirect(request) && responseSucceededWithoutRedirect(response)) {
-      const error = new Error("Form responses must redirect to another location")
-      this.delegate.formSubmissionErrored(this, error)
-    } else {
-      this.state = FormSubmissionState.receiving
-      this.result = { success: true, fetchResponse: response }
-      this.delegate.formSubmissionSucceededWithResponse(this, response)
-    }
+    this.state = FormSubmissionState.receiving
+    this.result = { success: true, fetchResponse: response }
+    this.delegate.formSubmissionSucceededWithResponse(this, response)
   }
 
   requestFailedWithResponse(request: FetchRequest, response: FetchResponse) {
