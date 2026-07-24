@@ -46,7 +46,7 @@ export class FrameController
     FrameElementDelegate,
     FormLinkClickObserverDelegate,
     LinkInterceptorDelegate,
-    ViewDelegate<FrameElement, Snapshot<FrameElement>>
+    ViewDelegate<Snapshot<FrameElement>>
 {
   fetchResponseLoaded = (_fetchResponse: FetchResponse) => Promise.resolve()
   #currentFetchRequest: FetchRequest | null = null
@@ -280,15 +280,10 @@ export class FrameController
 
     frame.delegate.proposeVisitIfNavigatedWithAction(frame, getVisitAction(formSubmission.submitter, formSubmission.formElement, frame))
     frame.delegate.loadResponse(response)
-
-    if (!formSubmission.isSafe) {
-      session.clearCache()
-    }
   }
 
   formSubmissionFailedWithResponse(formSubmission: FormSubmission, fetchResponse: FetchResponse) {
     this.element.delegate.loadResponse(fetchResponse)
-    session.clearCache()
   }
 
   formSubmissionErrored(formSubmission: FormSubmission, error: unknown) {
@@ -320,37 +315,9 @@ export class FrameController
     return !defaultPrevented
   }
 
-  viewRenderedSnapshot(_snapshot: Snapshot<FrameElement>, _isPreview: boolean, _renderMethod: string) {}
-
-  preloadOnLoadLinksForView(element: FrameElement) {
-    session.preloadOnLoadLinksForView(element)
-  }
+  viewRenderedSnapshot(_snapshot: Snapshot<FrameElement>, _renderMethod: string) {}
 
   viewInvalidated() {}
-
-  // Frame renderer delegate
-
-  willRenderFrame(currentElement: FrameElement, _newElement: FrameElement) {
-    // Only clone the frame for promoted frame visits, where visitCachedSnapshot
-    // consumes the clone to restore the frame's contents into the cached page
-    // snapshot (and deletes it). For plain frame renders — src changes without
-    // a data-turbo-action, refresh="morph" reloads, broadcast-driven reloads —
-    // nothing ever consumes or clears the clone, so it would pin a complete
-    // copy of the frame's previous subtree on the controller indefinitely.
-    if (this.action) {
-      this.previousFrameElement = currentElement.cloneNode(true)
-    }
-  }
-
-  visitCachedSnapshot = ({ element }: Snapshot) => {
-    const frame = element.querySelector("#" + this.element.id)
-
-    if (frame && this.previousFrameElement) {
-      frame.replaceChildren(...this.previousFrameElement.children)
-    }
-
-    delete this.previousFrameElement
-  }
 
   // Private
 
@@ -360,7 +327,7 @@ export class FrameController
 
     if (newFrameElement) {
       const snapshot = new Snapshot(newFrameElement)
-      const renderer = new rendererClass(this, this.view.snapshot, snapshot, false, false)
+      const renderer = new rendererClass(this.view.snapshot, snapshot, false)
       if (this.view.renderPromise) await this.view.renderPromise
       this.changeHistory()
 
@@ -404,9 +371,6 @@ export class FrameController
     this.action = action
 
     if (this.action) {
-      const pageSnapshot = PageSnapshot.fromElement(frame).clone()
-      const { visitCachedSnapshot } = frame.delegate
-
       frame.delegate.fetchResponseLoaded = async (fetchResponse: FetchResponse) => {
         if (frame.src) {
           const { statusCode, redirected } = fetchResponse
@@ -414,11 +378,9 @@ export class FrameController
           const response = { statusCode, redirected, responseHTML }
           const options: Partial<VisitOptions> = {
             response,
-            visitCachedSnapshot,
             willRender: false,
             updateHistory: false,
-            restorationIdentifier: this.restorationIdentifier,
-            snapshot: pageSnapshot
+            restorationIdentifier: this.restorationIdentifier
           }
 
           if (this.action) options.action = this.action

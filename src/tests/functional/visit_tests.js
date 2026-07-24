@@ -216,35 +216,41 @@ test("visits with data-turbo-stream do not set aria-busy", async ({ page }) => {
   ).toBeTruthy()
 })
 
-test("cache does not override response after redirect", async ({ page }) => {
+test("restoration visits always re-fetch from the network", async ({ page }) => {
   await page.evaluate(() => {
-    const cachedElement = document.createElement("some-cached-element")
-    document.body.appendChild(cachedElement)
+    document.body.appendChild(document.createElement("some-injected-element"))
   })
 
-  await expect(page.locator("some-cached-element")).toHaveCount(1)
+  await expect(page.locator("some-injected-element")).toHaveCount(1)
 
   await page.click("#same-origin-link")
-  await nextBeat()
-  await page.click("#redirection-link")
+  await nextEventNamed(page, "turbo:load")
+  await page.goBack()
+  await nextEventNamed(page, "turbo:before-fetch-request")
+  await nextEventNamed(page, "turbo:load")
 
-  await expect(page.locator("some-cached-element")).toHaveCount(0)
+  await expect(page.locator("some-injected-element")).toHaveCount(0)
 })
 
-test("cache does not hide temporary elements on the second visit after redirect", async ({ page }) => {
-  await page.click("#cache-observer-link")
-  await nextBeat()
-  await page.click("#redirect-here-link")
-  await nextBeat() // 301 redirect response
-  await nextBeat() // 200 response
+// Previews only ever fired on an advance visit to an already-visited URL: Turbo
+// rendered the cached snapshot, then re-rendered the fetched response over it.
+// With no cache there is nothing to preview from, so revisiting renders once.
+// Counted in-page because nextEventNamed drains the event log as it scans.
+test("revisiting an already-visited location renders once, without a preview", async ({ page }) => {
+  await page.click("#same-origin-link")
+  await nextEventNamed(page, "turbo:load")
+  await page.goBack()
+  await nextEventNamed(page, "turbo:load")
 
-  await expect(page.locator("#temporary")).toHaveCount(1)
+  await page.evaluate(() => {
+    window.renderCount = 0
+    addEventListener("turbo:render", () => window.renderCount++)
+  })
 
-  await page.click("#redirect-here-link")
-  await nextBeat() // 301 redirect response
-  await nextBeat() // 200 response
+  await page.click("#same-origin-link")
+  await nextEventNamed(page, "turbo:load")
 
-  await expect(page.locator("#temporary")).toHaveCount(1)
+  expect(await page.evaluate(() => window.renderCount), "renders once, with no preview render").toEqual(1)
 })
 
 function cancelNextVisit(page) {

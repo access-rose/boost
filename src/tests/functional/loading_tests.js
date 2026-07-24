@@ -4,7 +4,6 @@ import {
   nextAttributeMutationNamed,
   nextBeat,
   nextBody,
-  nextEventNamed,
   nextEventOnTarget,
   noNextEventOnTarget,
   readEventLogs
@@ -105,18 +104,12 @@ test("changing [src] attribute on a [complete] frame with loading=lazy defers na
   await expect(page.locator("#loading-lazy turbo-frame"), "lazy frame is complete").toHaveAttribute("complete")
   await expect(page.locator("#hello h2")).toHaveText("Hello from a frame")
 
+  // Collapse the frame out of view again. This used to navigate away and back to
+  // get a [complete] frame into a hidden state, which only worked because the
+  // cached snapshot restored it already-complete; a restore now re-fetches the
+  // page and the frame comes back pristine. Hiding it directly tests the same
+  // property — a [complete] lazy frame defers on [src] change — without the cache.
   await page.click("#loading-lazy summary")
-  await page.click("#one")
-  await nextEventNamed(page, "turbo:load")
-  await page.goBack()
-  await nextEventNamed(page, "turbo:load")
-
-  expect(await noNextEventOnTarget(page, "hello", "turbo:frame-load")).toBeTruthy()
-
-  let src = new URL((await attributeForSelector(page, "#hello", "src")) || "")
-
-  await expect(page.locator("#loading-lazy turbo-frame"), "lazy frame is complete").toHaveAttribute("complete")
-  expect(src.pathname, "lazy frame retains [src]").toEqual("/src/tests/fixtures/frames/hello.html")
 
   await page.click("#link-lazy-frame")
 
@@ -126,14 +119,18 @@ test("changing [src] attribute on a [complete] frame with loading=lazy defers na
   await page.click("#loading-lazy summary")
   await nextEventOnTarget(page, "hello", "turbo:frame-load")
 
-  src = new URL((await attributeForSelector(page, "#hello", "src")) || "")
+  const src = new URL((await attributeForSelector(page, "#hello", "src")) || "")
 
   await expect(page.locator("#loading-lazy turbo-frame h2")).toHaveText("Frames: #hello")
   await expect(page.locator("#loading-lazy turbo-frame"), "lazy frame is complete").toHaveAttribute("complete")
   expect(src.pathname, "lazy frame navigates").toEqual("/src/tests/fixtures/frames.html")
 })
 
-test("navigating away from a page and then back does not reload its frames", async ({ page }) => {
+// Turbo no longer caches page snapshots, so a restoration visit re-fetches the
+// page from the network. The server renders #frame with [src] and without
+// [complete], so it loads again — where a cached snapshot would have restored it
+// already-complete. Every eager frame costs a request on every back/forward.
+test("navigating away from a page and then back reloads its eager frames", async ({ page }) => {
   await page.click("#one")
   await nextBody(page)
   await readEventLogs(page)
@@ -145,8 +142,8 @@ test("navigating away from a page and then back does not reload its frames", asy
   const requestsOnEagerFrame = requestLogs.filter((record) => record[2] == "frame")
   const requestsOnLazyFrame = requestLogs.filter((record) => record[2] == "hello")
 
-  expect(requestsOnEagerFrame.length, "does not reload eager frame").toEqual(0)
-  expect(requestsOnLazyFrame.length, "does not reload lazy frame").toEqual(0)
+  expect(requestsOnEagerFrame.length, "reloads eager frame on restore").toEqual(1)
+  expect(requestsOnLazyFrame.length, "does not reload out-of-viewport lazy frame").toEqual(0)
 
   await page.click("#loading-lazy summary")
   await nextEventOnTarget(page, "hello", "turbo:before-fetch-request")

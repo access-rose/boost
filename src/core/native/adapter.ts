@@ -14,6 +14,5 @@ export interface Adapter {
   visitRendered(visit: Visit): void
   formSubmissionStarted?(formSubmission: FormSubmission): void
   formSubmissionFinished?(formSubmission: FormSubmission): void
-  linkPrefetchingIsEnabledForLocation?(location: URL): boolean
   pageInvalidated(reason: ReloadReason): void
 }

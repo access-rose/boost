@@ -2,7 +2,6 @@ import { FetchRequest, FetchMethod, fetchMethodFromString, fetchEnctypeFromStrin
 import { expandURL } from "../url"
 import { clearBusyState, dispatch, getAttribute, getMetaContent, hasAttribute, markAsBusy } from "../../util"
 import { StreamMessage } from "../streams/stream_message"
-import { prefetchCache } from "./prefetch_cache"
 import { config } from "../config"
 import type { FetchRequestDelegate, FetchEnctype } from "../../http/fetch_request"
 import type { FetchResponse } from "../../http/fetch_response"
@@ -157,8 +156,6 @@ export class FormSubmission implements FetchRequestDelegate {
   }
 
   requestPreventedHandlingResponse(request: FetchRequest, response: FetchResponse) {
-    prefetchCache.clear()
-
     this.result = { success: response.succeeded, fetchResponse: response }
   }
 
@@ -167,8 +164,6 @@ export class FormSubmission implements FetchRequestDelegate {
       this.delegate.formSubmissionFailedWithResponse(this, response)
       return
     }
-
-    prefetchCache.clear()
 
     if (this.requestMustRedirect(request) && responseSucceededWithoutRedirect(response)) {
       const error = new Error("Form responses must redirect to another location")

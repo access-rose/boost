@@ -22,8 +22,6 @@ async function assertTurboInterface(page) {
   await assertTypeOf(page, "Turbo.setProgressBarDelay", "function")
   await assertTypeOf(page, "Turbo.setConfirmMethod", "function")
   await assertTypeOf(page, "Turbo.setFormMode", "function")
-  await assertTypeOf(page, "Turbo.cache", "object")
-  await assertTypeOf(page, "Turbo.cache.clear", "function")
   await assertTypeOf(page, "Turbo.navigator", "object")
   await assertTypeOf(page, "Turbo.session", "object")
 }

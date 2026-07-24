@@ -1,23 +1,18 @@
-import { nextEventLoopTick } from "../../util"
 import { View } from "../view"
 import type { ViewDelegate, ViewRenderOptions } from "../view"
 import { ErrorRenderer } from "./error_renderer"
 import { MorphingPageRenderer } from "./morphing_page_renderer"
 import { PageRenderer } from "./page_renderer"
 import { PageSnapshot } from "./page_snapshot"
-import { SnapshotCache } from "./snapshot_cache"
 import type { Visit } from "./visit"
 
 export type PageViewRenderOptions = ViewRenderOptions<HTMLElement>
 
-export interface PageViewDelegate extends ViewDelegate<HTMLElement, PageSnapshot> {
-  viewWillCacheSnapshot(): void
-}
+export type PageViewDelegate = ViewDelegate<PageSnapshot>
 
 type PageViewRenderer = PageRenderer | ErrorRenderer
 
 export class PageView extends View<HTMLElement, PageSnapshot, PageViewRenderer, PageViewDelegate> {
-  snapshotCache = new SnapshotCache(10)
   lastRenderedLocation = new URL(location.href)
   forceReloaded = false
 
@@ -25,11 +20,11 @@ export class PageView extends View<HTMLElement, PageSnapshot, PageViewRenderer, 
     return this.snapshot.prefersViewTransitions && newSnapshot.prefersViewTransitions
   }
 
-  renderPage(snapshot: PageSnapshot, isPreview = false, willRender = true, visit?: Visit) {
+  renderPage(snapshot: PageSnapshot, willRender = true, visit?: Visit) {
     const shouldMorphPage = this.isPageRefresh(visit) && (visit?.refresh?.method || this.snapshot.refreshMethod) === "morph"
     const rendererClass = shouldMorphPage ? MorphingPageRenderer : PageRenderer
 
-    const renderer = new rendererClass(this.snapshot, snapshot, isPreview, willRender)
+    const renderer = new rendererClass(this.snapshot, snapshot, willRender)
 
     if (!renderer.shouldRender) {
       this.forceReloaded = true
@@ -42,27 +37,8 @@ export class PageView extends View<HTMLElement, PageSnapshot, PageViewRenderer, 
 
   renderError(snapshot: PageSnapshot, visit?: Visit) {
     visit?.changeHistory()
-    const renderer = new ErrorRenderer(this.snapshot, snapshot, false)
+    const renderer = new ErrorRenderer(this.snapshot, snapshot)
     return this.render(renderer)
-  }
-
-  clearSnapshotCache() {
-    this.snapshotCache.clear()
-  }
-
-  async cacheSnapshot(snapshot = this.snapshot) {
-    if (snapshot.isCacheable) {
-      this.delegate.viewWillCacheSnapshot()
-      const { lastRenderedLocation: location } = this
-      await nextEventLoopTick()
-      const cachedSnapshot = snapshot.clone()
-      this.snapshotCache.put(location, cachedSnapshot)
-      return cachedSnapshot
-    }
-  }
-
-  getCachedSnapshotForLocation(location: URL) {
-    return this.snapshotCache.get(location)
   }
 
   isPageRefresh(visit?: Visit) {

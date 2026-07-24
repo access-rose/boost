@@ -724,7 +724,6 @@ test("navigating pushing URL state from a frame navigation fires events", async 
   expect(await nextAttributeMutationNamed(page, "html", "aria-busy"), "sets aria-busy on the <html>").toEqual("true")
   await nextEventOnTarget(page, "html", "turbo:before-visit")
   await nextEventOnTarget(page, "html", "turbo:visit")
-  await nextEventOnTarget(page, "html", "turbo:before-cache")
   await nextEventOnTarget(page, "html", "turbo:before-render")
   await nextEventOnTarget(page, "html", "turbo:render")
   await nextEventOnTarget(page, "html", "turbo:load")
@@ -796,7 +795,7 @@ test("navigating turbo-frame without advance with Turbo.visit specifying advance
   expect(pathname(page.url())).toEqual(path)
 })
 
-test("navigating turbo-frame[data-turbo-action=advance] to the same URL clears the [aria-busy] and [data-turbo-preview] state", async ({
+test("navigating turbo-frame[data-turbo-action=advance] to the same URL clears the [aria-busy] state", async ({
   page
 }) => {
   await page.click("#link-outside-frame-action-advance")
@@ -808,7 +807,6 @@ test("navigating turbo-frame[data-turbo-action=advance] to the same URL clears t
 
   await expect(page.locator("#frame"), "clears turbo-frame[aria-busy]").not.toHaveAttribute("aria-busy")
   await expect(page.locator("#html"), "clears html[aria-busy]").not.toHaveAttribute("aria-busy")
-  await expect(page.locator("#html"), "clears html[data-turbo-preview]").not.toHaveAttribute("data-turbo-preview")
 })
 
 test("navigating a turbo-frame with an a[data-turbo-action=advance] preserves page state", async ({ page }) => {
@@ -893,7 +891,7 @@ test("navigating frame with form[method=get][data-turbo-action=advance] pushes U
   await expect(page.locator("#frame"), "marks the frame as [complete]").toHaveAttribute("complete")
 })
 
-test("navigating frame with form[method=get][data-turbo-action=advance] to the same URL clears the [aria-busy] and [data-turbo-preview] state", async ({
+test("navigating frame with form[method=get][data-turbo-action=advance] to the same URL clears the [aria-busy] state", async ({
   page
 }) => {
   await page.click("#form-get-frame-action-advance button")
@@ -905,7 +903,6 @@ test("navigating frame with form[method=get][data-turbo-action=advance] to the s
 
   await expect(page.locator("#frame"), "clears turbo-frame[aria-busy]").not.toHaveAttribute("aria-busy")
   await expect(page.locator("#html"), "clears html[aria-busy]").not.toHaveAttribute("aria-busy")
-  await expect(page.locator("#html"), "clears html[data-turbo-preview]").not.toHaveAttribute("data-turbo-preview")
 })
 
 test("navigating frame with form[method=post][data-turbo-action=advance] pushes URL state", async ({ page }) => {
@@ -923,7 +920,7 @@ test("navigating frame with form[method=post][data-turbo-action=advance] pushes 
   await expect(page.locator("#frame"), "marks the frame as [complete]").toHaveAttribute("complete")
 })
 
-test("navigating frame with form[method=post][data-turbo-action=advance] to the same URL clears the [aria-busy] and [data-turbo-preview] state", async ({
+test("navigating frame with form[method=post][data-turbo-action=advance] to the same URL clears the [aria-busy] state", async ({
   page
 }) => {
   await page.click("#form-post-frame-action-advance button")
@@ -935,7 +932,6 @@ test("navigating frame with form[method=post][data-turbo-action=advance] to the 
 
   await expect(page.locator("#frame"), "clears turbo-frame[aria-busy]").not.toHaveAttribute("aria-busy")
   await expect(page.locator("#html"), "clears html[aria-busy]").not.toHaveAttribute("aria-busy")
-  await expect(page.locator("#html"), "clears html[data-turbo-preview]").not.toHaveAttribute("data-turbo-preview")
   await expect(page.locator("#frame"), "marks the frame as [complete]").toHaveAttribute("complete")
 })
 
@@ -954,7 +950,7 @@ test("navigating frame with button[data-turbo-action=advance] pushes URL state",
   await expect(page.locator("#frame"), "marks the frame as [complete]").toHaveAttribute("complete")
 })
 
-test("navigating back after pushing URL state from a turbo-frame[data-turbo-action=advance] restores the frames previous contents", async ({
+test("navigating back after pushing URL state from a turbo-frame[data-turbo-action=advance] re-fetches the page", async ({
   page
 }) => {
   await page.click("#add-turbo-action-to-frame")
@@ -973,7 +969,12 @@ test("navigating back after pushing URL state from a turbo-frame[data-turbo-acti
   expect(await propertyForSelector(page, "#frame", "src")).toEqual(null)
 })
 
-test("navigating back then forward after pushing URL state from a turbo-frame[data-turbo-action=advance] restores the frames next contents", async ({
+// A promoted frame visit pushes the frame's URL as the page URL. With no snapshot
+// cache, going forward re-fetches that URL as a top-level document rather than
+// restoring the composite snapshot the visit built. frames/frame.html is served as
+// a complete page, so the content is right — but it is *its own* page, so the <h1>
+// is its own and #frame carries neither [src] nor [complete].
+test("navigating back then forward after pushing URL state from a turbo-frame[data-turbo-action=advance] re-fetches the frame URL as a page", async ({
   page
 }) => {
   await page.click("#add-turbo-action-to-frame")
@@ -986,13 +987,12 @@ test("navigating back then forward after pushing URL state from a turbo-frame[da
 
   const title = page.locator("h1")
   const frameTitle = page.locator("#frame h2")
-  const src = (await attributeForSelector(page, "#frame", "src")) ?? ""
 
-  expect(src, "updates src attribute").toContain("/src/tests/fixtures/frames/frame.html")
-  await expect(title).toHaveText("Frames")
-  await expect(frameTitle).toHaveText("Frame: Loaded")
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/frames/frame.html"))
-  await expect(page.locator("#frame"), "marks the frame as [complete]").toHaveAttribute("complete")
+  await expect(title, "renders frame.html as its own page").toHaveText("Frames: #frame")
+  await expect(frameTitle).toHaveText("Frame: Loaded")
+  await expect(page.locator("#frame"), "re-fetched frame has no [src]").not.toHaveAttribute("src")
+  await expect(page.locator("#frame"), "re-fetched frame is not [complete]").not.toHaveAttribute("complete")
 })
 
 test("turbo:before-fetch-request fires on the frame element", async ({ page }) => {
@@ -1024,22 +1024,6 @@ test("navigating a eager frame with a link[method=get] that does not fetch eager
   await expect(page.locator("h1")).toHaveText("Eager-loaded frame")
   await expect(page.locator("#eager-loaded-frame h2")).toHaveText("Eager-loaded frame: Loaded")
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/page_with_eager_frame.html"))
-})
-
-test("form submissions from frames clear snapshot cache", async ({ page }) => {
-  await page.evaluate(() => {
-    document.querySelector("h1").textContent = "Changed"
-  })
-
-  await expect(page.locator("h1")).toHaveText("Changed")
-
-  await page.click("#navigate-form-redirect-as-new")
-  await expect(page.locator("h1")).toHaveText("Page One Form")
-  await page.click("#submit-form")
-  await expect(page.locator("h2")).toHaveText("Form Redirected")
-  await page.goBack()
-
-  await expect(page.locator("h1")).not.toHaveText("Changed")
 })
 
 async function withoutChangingEventListenersCount(page, callback) {

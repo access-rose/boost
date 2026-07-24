@@ -87,16 +87,10 @@ export class Navigator implements FormSubmissionDelegate {
     if (formSubmission == this.formSubmission) {
       const responseHTML = await fetchResponse.responseHTML
       if (responseHTML) {
-        const shouldCacheSnapshot = formSubmission.isSafe
-        if (!shouldCacheSnapshot) {
-          this.view.clearSnapshotCache()
-        }
-
         const { statusCode, redirected } = fetchResponse
         const action = this.#getActionForFormSubmission(formSubmission, fetchResponse)
         const visitOptions = {
           action,
-          shouldCacheSnapshot,
           response: { statusCode, responseHTML, redirected }
         }
         this.proposeVisit(fetchResponse.location, visitOptions)
@@ -112,12 +106,11 @@ export class Navigator implements FormSubmissionDelegate {
       if (fetchResponse.serverError) {
         await this.view.renderError(snapshot, this.currentVisit)
       } else {
-        await this.view.renderPage(snapshot, false, true, this.currentVisit)
+        await this.view.renderPage(snapshot, true, this.currentVisit)
       }
       if (snapshot.refreshScroll !== "preserve") {
         this.view.scrollToTop()
       }
-      this.view.clearSnapshotCache()
     }
   }
 
@@ -130,17 +123,6 @@ export class Navigator implements FormSubmissionDelegate {
     if (typeof this.adapter.formSubmissionFinished === "function") {
       this.adapter.formSubmissionFinished(formSubmission)
     }
-  }
-
-  // Link prefetching
-
-  linkPrefetchingIsEnabledForLocation(location: URL) {
-    // Not all adapters implement linkPrefetchingIsEnabledForLocation
-    if (typeof this.adapter.linkPrefetchingIsEnabledForLocation === "function") {
-      return this.adapter.linkPrefetchingIsEnabledForLocation(location)
-    }
-
-    return true
   }
 
   // Visit delegate

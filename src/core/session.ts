@@ -1,9 +1,7 @@
 import { BrowserAdapter } from "./native/browser_adapter"
-import { CacheObserver } from "../observers/cache_observer"
 import { FormSubmitObserver } from "../observers/form_submit_observer"
 import { FrameRedirector } from "./frames/frame_redirector"
 import { History } from "./drive/history"
-import { LinkPrefetchObserver } from "../observers/link_prefetch_observer"
 import { LinkClickObserver } from "../observers/link_click_observer"
 import { FormLinkClickObserver } from "../observers/form_link_click_observer"
 import { getAction, expandURL, locationIsVisitable } from "./url"
@@ -16,8 +14,6 @@ import { StreamObserver } from "../observers/stream_observer"
 import { clearBusyState, dispatch, findClosestRecursively, getVisitAction, markAsBusy, debounce } from "../util"
 import { PageView } from "./drive/page_view"
 import { FrameElement } from "../elements/frame_element"
-import { Preloader } from "./drive/preloader"
-import { Cache } from "./cache"
 import { config } from "./config"
 import type { Action, Position, StreamSource } from "./types"
 import type { Locatable } from "./url"
@@ -37,20 +33,18 @@ import type { FormLinkClickObserverDelegate } from "../observers/form_link_click
 import type { LinkClickObserverDelegate } from "../observers/link_click_observer"
 import type { NavigatorDelegate } from "./drive/navigator"
 import type { PageObserverDelegate } from "../observers/page_observer"
-import type { PreloaderDelegate } from "./drive/preloader"
 import type { ScrollObserverDelegate } from "../observers/scroll_observer"
 import type { StreamObserverDelegate } from "../observers/stream_observer"
 
 export type TimingData = Record<string, unknown>
 
-export type TurboBeforeCacheEvent = CustomEvent
 export type TurboBeforeRenderEvent = CustomEvent<{ newBody: HTMLElement } & PageViewRenderOptions>
 export type TurboBeforeVisitEvent = CustomEvent<{ url: string }>
 export type TurboClickEvent = CustomEvent<{ url: string; originalEvent: MouseEvent }>
 export type TurboFrameLoadEvent = CustomEvent
 export type TurboFrameRenderEvent = CustomEvent<{ fetchResponse: FetchResponse }>
 export type TurboLoadEvent = CustomEvent<{ url: string; timing: TimingData }>
-export type TurboRenderEvent = CustomEvent<{ isPreview: boolean }>
+export type TurboRenderEvent = CustomEvent<{ renderMethod: string }>
 export type TurboVisitEvent = CustomEvent<{ url: string; action: Action }>
 
 export class Session
@@ -62,7 +56,6 @@ export class Session
     NavigatorDelegate,
     PageObserverDelegate,
     PageViewDelegate,
-    PreloaderDelegate,
     ScrollObserverDelegate,
     StreamObserverDelegate
 {
@@ -72,8 +65,6 @@ export class Session
   adapter: Adapter = new BrowserAdapter(this)
 
   pageObserver = new PageObserver(this)
-  cacheObserver = new CacheObserver()
-  linkPrefetchObserver = new LinkPrefetchObserver(this, document)
   linkClickObserver = new LinkClickObserver(this, window)
   formSubmitObserver = new FormSubmitObserver(this, document)
   scrollObserver = new ScrollObserver(this)
@@ -81,19 +72,16 @@ export class Session
   formLinkClickObserver = new FormLinkClickObserver(this, document.documentElement)
   frameRedirector = new FrameRedirector(this, document.documentElement)
   streamMessageRenderer = new StreamMessageRenderer()
-  cache = new Cache(this)
 
   enabled = true
   started = false
   #pageRefreshDebouncePeriod = 150
 
   declare readonly recentRequests: LimitedSet<string>
-  declare readonly preloader: Preloader
   declare debouncedRefresh: Session["refresh"]
 
   constructor(recentRequests: LimitedSet<string>) {
     this.recentRequests = recentRequests
-    this.preloader = new Preloader(this, this.view.snapshotCache)
     this.debouncedRefresh = this.refresh
     this.pageRefreshDebouncePeriod = this.pageRefreshDebouncePeriod
   }
@@ -101,8 +89,6 @@ export class Session
   start() {
     if (!this.started) {
       this.pageObserver.start()
-      this.cacheObserver.start()
-      this.linkPrefetchObserver.start()
       this.formLinkClickObserver.start()
       this.linkClickObserver.start()
       this.formSubmitObserver.start()
@@ -110,7 +96,6 @@ export class Session
       this.streamObserver.start()
       this.frameRedirector.start()
       this.history.start()
-      this.preloader.start()
       this.started = true
       this.enabled = true
     }
@@ -123,8 +108,6 @@ export class Session
   stop() {
     if (this.started) {
       this.pageObserver.stop()
-      this.cacheObserver.stop()
-      this.linkPrefetchObserver.stop()
       this.formLinkClickObserver.stop()
       this.linkClickObserver.stop()
       this.formSubmitObserver.stop()
@@ -132,7 +115,6 @@ export class Session
       this.streamObserver.stop()
       this.frameRedirector.stop()
       this.history.stop()
-      this.preloader.stop()
       this.started = false
     }
   }
@@ -161,7 +143,7 @@ export class Session
     const isRecentRequest = requestId && this.recentRequests.has(requestId)
     const isCurrentUrl = url === document.baseURI
     if (!isRecentRequest && !this.navigator.currentVisit && isCurrentUrl) {
-      this.visit(url, { action: "replace", shouldCacheSnapshot: false, refresh: { method, scroll } })
+      this.visit(url, { action: "replace", refresh: { method, scroll } })
     }
   }
 
@@ -175,10 +157,6 @@ export class Session
 
   renderStreamMessage(message: StreamMessage | string) {
     this.streamMessageRenderer.render(StreamMessage.wrap(message))
-  }
-
-  clearCache() {
-    this.view.clearSnapshotCache()
   }
 
   setProgressBarDelay(delay: number) {
@@ -230,25 +208,6 @@ export class Session
     this.#pageRefreshDebouncePeriod = value
   }
 
-  // Preloader delegate
-
-  shouldPreloadLink(element: HTMLAnchorElement) {
-    const isUnsafe = element.hasAttribute("data-turbo-method")
-    const isStream = element.hasAttribute("data-turbo-stream")
-    const frameTarget = element.getAttribute("data-turbo-frame")
-    const frame = frameTarget == "_top" ?
-      null :
-      (frameTarget ? document.getElementById(frameTarget) : null) || findClosestRecursively(element, "turbo-frame:not([disabled])")
-
-    if (isUnsafe || isStream || frame instanceof FrameElement) {
-      return false
-    } else {
-      const location = new URL(element.href)
-
-      return this.elementIsNavigatable(element) && locationIsVisitable(location, this.snapshot.rootLocation)
-    }
-  }
-
   // History delegate
 
   historyPoppedToLocationWithRestorationIdentifierAndDirection(location: URL, restorationIdentifier: string, direction: HistoryDirection) {
@@ -268,7 +227,6 @@ export class Session
   historyPoppedWithEmptyState(location: URL) {
     this.history.replace(location)
     this.view.lastRenderedLocation = location
-    this.view.cacheSnapshot()
   }
 
   // Scroll observer delegate
@@ -284,16 +242,6 @@ export class Session
   }
 
   submittedFormLinkToLocation() {}
-
-  // Link hover observer delegate
-
-  canPrefetchRequestToLocation(link: Element, location: URL) {
-    return (
-      this.elementIsNavigatable(link) &&
-      locationIsVisitable(location, this.snapshot.rootLocation) &&
-      this.navigator.linkPrefetchingIsEnabledForLocation(location)
-    )
-  }
 
   // Link click observer delegate
 
@@ -378,10 +326,6 @@ export class Session
 
   // Page view delegate
 
-  viewWillCacheSnapshot() {
-    this.notifyApplicationBeforeCachingSnapshot()
-  }
-
   allowsImmediateRender({ element }: PageSnapshot, options: PageViewRenderOptions) {
     const event = this.notifyApplicationBeforeRender(element, options)
     const {
@@ -396,13 +340,9 @@ export class Session
     return !defaultPrevented
   }
 
-  viewRenderedSnapshot(_snapshot: PageSnapshot, _isPreview: boolean, renderMethod: string) {
+  viewRenderedSnapshot(_snapshot: PageSnapshot, renderMethod: string) {
     this.view.lastRenderedLocation = this.history.location
     this.notifyApplicationAfterRender(renderMethod)
-  }
-
-  preloadOnLoadLinksForView(element: Element) {
-    this.preloader.preloadOnLoadLinksForView(element)
   }
 
   viewInvalidated(reason: ReloadReason) {
@@ -448,10 +388,6 @@ export class Session
 
   notifyApplicationAfterVisitingLocation(location: URL, action: Action) {
     return dispatch("turbo:visit", { detail: { url: location.href, action } })
-  }
-
-  notifyApplicationBeforeCachingSnapshot() {
-    return dispatch("turbo:before-cache")
   }
 
   notifyApplicationBeforeRender(newBody: HTMLElement, options: PageViewRenderOptions) {

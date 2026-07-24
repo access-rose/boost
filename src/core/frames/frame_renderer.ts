@@ -1,11 +1,6 @@
 import { activateScriptElement, nextRepaint } from "../../util"
 import { Renderer } from "../renderer"
 import type { FrameElement } from "../../elements/frame_element"
-import type { Snapshot } from "../snapshot"
-
-export interface FrameRendererDelegate {
-  willRenderFrame(currentElement: FrameElement, newElement: FrameElement): void
-}
 
 export class FrameRenderer extends Renderer<FrameElement> {
   static renderElement(currentElement: FrameElement, newElement: FrameElement) {
@@ -19,13 +14,6 @@ export class FrameRenderer extends Renderer<FrameElement> {
       sourceRange.selectNodeContents(frameElement)
       currentElement.appendChild(sourceRange.extractContents())
     }
-  }
-
-  declare readonly delegate: FrameRendererDelegate
-
-  constructor(delegate: FrameRendererDelegate, currentSnapshot: Snapshot<FrameElement>, newSnapshot: Snapshot<FrameElement>, isPreview: boolean, willRender = true) {
-    super(currentSnapshot, newSnapshot, isPreview, willRender)
-    this.delegate = delegate
   }
 
   get shouldRender() {
@@ -45,7 +33,6 @@ export class FrameRenderer extends Renderer<FrameElement> {
   }
 
   loadFrameElement() {
-    this.delegate.willRenderFrame(this.currentElement, this.newElement)
     this.renderElement(this.currentElement, this.newElement)
   }
 

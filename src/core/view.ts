@@ -10,10 +10,9 @@ export interface ViewRenderOptions<E extends Element> {
   renderMethod: string
 }
 
-export interface ViewDelegate<E extends Element, S extends Snapshot<Element>> {
+export interface ViewDelegate<S extends Snapshot<Element>> {
   allowsImmediateRender(snapshot: S, options: ViewRenderOptions<S["element"]>): boolean
-  preloadOnLoadLinksForView(element: E): void
-  viewRenderedSnapshot(snapshot: S, isPreview: boolean, renderMethod: string): void
+  viewRenderedSnapshot(snapshot: S, renderMethod: string): void
   viewInvalidated(reason: ReloadReason): void
 }
 
@@ -21,7 +20,7 @@ export abstract class View<
   E extends Element,
   S extends Snapshot<Element> = Snapshot<E>,
   R extends Renderer<S["element"], S> = Renderer<S["element"], S>,
-  D extends ViewDelegate<E, S> = ViewDelegate<E, S>
+  D extends ViewDelegate<S> = ViewDelegate<S>
 > {
   #resolveRenderPromise: (value: void | PromiseLike<void>) => void = (_value) => {}
   #resolveInterceptionPromise: (value?: unknown) => void = (_value) => {}
@@ -86,7 +85,7 @@ export abstract class View<
   // Rendering
 
   async render(renderer: R) {
-    const { isPreview, shouldRender, willRender, newSnapshot: snapshot } = renderer
+    const { shouldRender, willRender, newSnapshot: snapshot } = renderer
 
     // A workaround to ignore tracked element mismatch reloads when performing
     // a promoted Visit from a frame navigation
@@ -104,8 +103,7 @@ export abstract class View<
         if (!immediateRender) await renderInterception
 
         await this.renderSnapshot(renderer)
-        this.delegate.viewRenderedSnapshot(snapshot, isPreview, this.renderer.renderMethod)
-        this.delegate.preloadOnLoadLinksForView(this.element)
+        this.delegate.viewRenderedSnapshot(snapshot, this.renderer.renderMethod)
         this.finishRenderingSnapshot(renderer)
       } finally {
         delete this.renderer
@@ -122,16 +120,7 @@ export abstract class View<
   }
 
   async prepareToRenderSnapshot(renderer: R) {
-    this.markAsPreview(renderer.isPreview)
     await renderer.prepareToRender()
-  }
-
-  markAsPreview(isPreview: boolean) {
-    if (isPreview) {
-      this.element.setAttribute("data-turbo-preview", "")
-    } else {
-      this.element.removeAttribute("data-turbo-preview")
-    }
   }
 
   markVisitDirection(direction: string) {

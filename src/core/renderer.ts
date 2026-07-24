@@ -17,7 +17,6 @@ export class Renderer<E extends Element, S extends Snapshot<E> = Snapshot<E>> im
 
   declare readonly currentSnapshot: S
   declare readonly newSnapshot: S
-  declare readonly isPreview: boolean
   declare readonly willRender: boolean
   declare readonly promise: Promise<void>
   declare renderElement: Render<E>
@@ -27,10 +26,9 @@ export class Renderer<E extends Element, S extends Snapshot<E> = Snapshot<E>> im
     // Abstract method
   }
 
-  constructor(currentSnapshot: S, newSnapshot: S, isPreview: boolean, willRender = true) {
+  constructor(currentSnapshot: S, newSnapshot: S, willRender = true) {
     this.currentSnapshot = currentSnapshot
     this.newSnapshot = newSnapshot
-    this.isPreview = isPreview
     this.willRender = willRender
     this.renderElement = this.constructor.renderElement
     this.promise = new Promise((resolve, reject) => (this.resolvingFunctions = { resolve, reject }))

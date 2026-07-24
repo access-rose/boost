@@ -185,19 +185,6 @@ test("following a same-origin POST form button[data-turbo-action=replace]", asyn
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a POST form clears cache", async ({ page }) => {
-  await page.evaluate(() => {
-    const cachedElement = document.createElement("some-cached-element")
-    document.body.appendChild(cachedElement)
-  })
-
-  await page.click("#form-post-submit")
-  await nextBeat() // 301 redirect response
-  await nextBeat() // 200 response
-  await page.goBack()
-  await expect(page.locator("some-cached-element")).not.toBeAttached()
-})
-
 test("following a same-origin POST link with data-turbo-action=replace", async ({ page }) => {
   await page.click("#same-origin-replace-post-link")
 
@@ -431,7 +418,6 @@ test("same-page anchor visits do not trigger visit events", async ({ page }) => 
   const events = [
     "turbo:before-visit",
     "turbo:visit",
-    "turbo:before-cache",
     "turbo:before-render",
     "turbo:render",
     "turbo:load"

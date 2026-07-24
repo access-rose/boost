@@ -84,7 +84,12 @@ test("promoted frame navigation updates the URL before rendering", async ({ page
   await expect(page.locator("#tab-content")).toHaveText("Two")
 })
 
-test("promoted frame navigations are cached", async ({ page }) => {
+// Promoted frame navigations push the frame's URL as the page URL. With no
+// snapshot cache, going back re-fetches that URL as a top-level document, so the
+// frame arrives as the server renders it: no [src], no [complete]. Apps that
+// serve frame URLs as complete pages (as tabs/two.html does) still show the right
+// content; apps that serve bare fragments will render a broken page.
+test("navigating back to a promoted frame navigation re-fetches it as a page", async ({ page }) => {
   await page.goto("/src/tests/fixtures/tabs.html")
 
   await page.click("#tab-2")
@@ -107,13 +112,13 @@ test("promoted frame navigations are cached", async ({ page }) => {
   await nextEventNamed(page, "turbo:load")
 
   await expect(page.locator("#tab-content")).toHaveText("Two")
-  expect(pathname((await page.getAttribute("#tab-frame", "src")) || "")).toEqual("/src/tests/fixtures/tabs/two.html")
-  await expect(page.locator("#tab-frame"), "caches two.html with [complete]").toHaveAttribute("complete")
+  await expect(page.locator("#tab-frame"), "re-fetches two.html without [src]").not.toHaveAttribute("src")
+  await expect(page.locator("#tab-frame"), "re-fetches two.html without [complete]").not.toHaveAttribute("complete")
 
   await page.goBack()
   await nextEventNamed(page, "turbo:load")
 
   await expect(page.locator("#tab-content")).toHaveText("One")
-  await expect(page.locator("#tab-frame"), "caches one.html without #tab-frame[src]").not.toHaveAttribute("src")
-  await expect(page.locator("#tab-frame"), "caches one.html without [complete]").not.toHaveAttribute("complete")
+  await expect(page.locator("#tab-frame"), "re-fetches one.html without [src]").not.toHaveAttribute("src")
+  await expect(page.locator("#tab-frame"), "re-fetches one.html without [complete]").not.toHaveAttribute("complete")
 })

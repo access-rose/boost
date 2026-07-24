@@ -196,21 +196,6 @@ export function getCspNonce() {
   }
 }
 
-export function setMetaContent(name: string, content: string) {
-  let element = getMetaElement(name)
-
-  if (!element) {
-    element = document.createElement("meta")
-    element.setAttribute("name", name)
-
-    document.head.appendChild(element)
-  }
-
-  element.setAttribute("content", content)
-
-  return element
-}
-
 export function findClosestRecursively<E extends Element>(
   element: EventTarget | null | undefined,
   selector: string

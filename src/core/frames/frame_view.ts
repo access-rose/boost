@@ -6,7 +6,7 @@ import type { ViewDelegate, ViewRenderOptions } from "../view"
 
 export type FrameViewRenderOptions = ViewRenderOptions<FrameElement>
 
-export type FrameViewDelegate = ViewDelegate<FrameElement, Snapshot<FrameElement>>
+export type FrameViewDelegate = ViewDelegate<Snapshot<FrameElement>>
 
 export class FrameView extends View<FrameElement, Snapshot<FrameElement>, FrameRenderer, FrameViewDelegate> {
   missing() {

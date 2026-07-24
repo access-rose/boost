@@ -1,6 +1,5 @@
 import type { FetchResponse } from "../http/fetch_response"
 import type { Action } from "../core/types"
-import type { Snapshot } from "../core/snapshot"
 import type { LinkInterceptorDelegate } from "../core/frames/link_interceptor"
 import type { FormSubmitObserverDelegate } from "../observers/form_submit_observer"
 
@@ -21,7 +20,6 @@ export interface FrameElementDelegate extends LinkInterceptorDelegate, FormSubmi
   loadResponse(response: FetchResponse): void
   proposeVisitIfNavigatedWithAction(frame: FrameElement, action?: Action | null): void
   fetchResponseLoaded: (fetchResponse: FetchResponse) => void
-  visitCachedSnapshot: (snapshot: Snapshot) => void
   isLoading: boolean
 }
 
@@ -194,16 +192,7 @@ export class FrameElement extends HTMLElement {
    * If inactive, source changes will not be observed.
    */
   get isActive() {
-    return this.ownerDocument === document && !this.isPreview
-  }
-
-  /**
-   * Sets the active state of the frame.
-   *
-   * If inactive, source changes will not be observed.
-   */
-  get isPreview() {
-    return this.ownerDocument?.documentElement?.hasAttribute("data-turbo-preview")
+    return this.ownerDocument === document
   }
 }
 

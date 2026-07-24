@@ -39,17 +39,12 @@ export class BrowserAdapter implements Adapter {
     this.location = visit.location
     this.redirectedToLocation = null
 
-    visit.loadCachedSnapshot()
     visit.issueRequest()
   }
 
-  visitRequestStarted(visit: Visit) {
+  visitRequestStarted(_visit: Visit) {
     this.progressBar.setValue(0)
-    if (visit.hasCachedSnapshot() || visit.action != "restore") {
-      this.showVisitProgressBarAfterDelay()
-    } else {
-      this.showProgressBar()
-    }
+    this.showVisitProgressBarAfterDelay()
   }
 
   visitRequestCompleted(visit: Visit) {
@@ -93,12 +88,6 @@ export class BrowserAdapter implements Adapter {
   }
 
   visitRendered(_visit: Visit) {}
-
-  // Link prefetching
-
-  linkPrefetchingIsEnabledForLocation(location: URL) {
-    return true
-  }
 
   // Form Submission Delegate
 

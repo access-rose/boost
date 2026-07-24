@@ -42,9 +42,7 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
 
   finishRendering() {
     super.finishRendering()
-    if (!this.isPreview) {
-      this.focusFirstAutofocusableElement()
-    }
+    this.focusFirstAutofocusableElement()
   }
 
   get currentHeadSnapshot() {

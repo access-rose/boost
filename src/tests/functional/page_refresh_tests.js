@@ -27,7 +27,6 @@ test("async page refresh with turbo-stream", async ({ page }) => {
 
   await expect(page.locator("#title")).not.toHaveText("Updated")
   await expect(page.locator("#title")).toHaveText("Page to be refreshed")
-  expect(await noNextEventNamed(page, "turbo:before-cache")).toBeTruthy()
 })
 
 test("async page refresh with turbo-stream sequentially initiate Visits", async ({ page }) => {
@@ -408,7 +407,7 @@ test("renders unprocessable content responses with morphing", async ({ page }) =
   await expect(page.locator("#frame form.reject"), "replaces entire page").not.toBeAttached()
 })
 
-test("doesn't render previews when morphing", async ({ page }) => {
+test("morphing page refresh renders once", async ({ page }) => {
   await page.goto("/src/tests/fixtures/page_refresh.html")
 
   await page.click("#link")

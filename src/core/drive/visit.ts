@@ -7,7 +7,6 @@ import { getHistoryMethodForAction, uuid } from "../../util"
 import { StreamMessage } from "../streams/stream_message"
 import { ViewTransitioner } from "./view_transitioner"
 import type { Action } from "../types"
-import type { Snapshot } from "../snapshot"
 import type { Adapter } from "../native/adapter"
 import type { History, HistoryDirection } from "./history"
 import type { PageView } from "./page_view"
@@ -33,14 +32,10 @@ export type VisitOptions = {
   action: Action
   historyChanged: boolean
   referrer?: URL
-  snapshot?: PageSnapshot
-  snapshotHTML?: string
   response?: VisitResponse
-  visitCachedSnapshot(snapshot: Snapshot): void
   willRender: boolean
   updateHistory: boolean
   restorationIdentifier?: string
-  shouldCacheSnapshot: boolean
   frame?: string
   acceptsStreamResponse: boolean
   direction?: HistoryDirection | "none"
@@ -52,10 +47,8 @@ export type TimingMetrics = Partial<Record<TimingMetric, number>>
 const defaultOptions: VisitOptions = {
   action: "advance",
   historyChanged: false,
-  visitCachedSnapshot: () => {},
   willRender: true,
   updateHistory: true,
-  shouldCacheSnapshot: true,
   acceptsStreamResponse: false,
   refresh: {}
 }
@@ -100,9 +93,7 @@ export class Visit implements FetchRequestDelegate {
   followedRedirect = false
   historyChanged = false
   scrolled = false
-  shouldCacheSnapshot = true
   acceptsStreamResponse = false
-  snapshotCached = false
   state: VisitState = VisitState.initialized
   viewTransitioner = new ViewTransitioner()
 
@@ -111,14 +102,10 @@ export class Visit implements FetchRequestDelegate {
   declare readonly restorationIdentifier: string
   declare readonly action: Action
   declare readonly referrer?: URL
-  declare readonly visitCachedSnapshot: (snapshot: Snapshot) => void
   declare readonly willRender: boolean
   declare readonly updateHistory: boolean
-  declare readonly isPageRefresh: boolean
   declare readonly direction: HistoryDirection | "none"
   declare readonly refresh: VisitRefresh
-  declare snapshot?: PageSnapshot
-  declare snapshotHTML?: string
   declare response?: VisitResponse
   declare frame?: number
   declare request?: FetchRequest
@@ -133,13 +120,9 @@ export class Visit implements FetchRequestDelegate {
       action,
       historyChanged,
       referrer,
-      snapshot,
-      snapshotHTML,
       response,
-      visitCachedSnapshot,
       willRender,
       updateHistory,
-      shouldCacheSnapshot,
       acceptsStreamResponse,
       direction,
       refresh
@@ -150,15 +133,10 @@ export class Visit implements FetchRequestDelegate {
     this.action = action
     this.historyChanged = historyChanged
     this.referrer = referrer
-    this.snapshot = snapshot
-    this.snapshotHTML = snapshotHTML
     this.response = response
-    this.isPageRefresh = this.view.isPageRefresh(this)
-    this.visitCachedSnapshot = visitCachedSnapshot
     this.willRender = willRender
     this.updateHistory = updateHistory
     this.scrolled = !willRender
-    this.shouldCacheSnapshot = shouldCacheSnapshot
     this.acceptsStreamResponse = acceptsStreamResponse
     this.direction = direction || Direction[action]
     this.refresh = refresh
@@ -272,12 +250,11 @@ export class Visit implements FetchRequestDelegate {
     if (this.response) {
       const { statusCode, responseHTML } = this.response
       this.render(async () => {
-        if (this.shouldCacheSnapshot) this.cacheSnapshot()
         if (this.view.renderPromise) await this.view.renderPromise
 
         if (isSuccessful(statusCode) && responseHTML != null) {
           const snapshot = PageSnapshot.fromHTMLString(responseHTML)
-          await this.renderPageSnapshot(snapshot, false)
+          await this.renderPageSnapshot(snapshot)
 
           this.adapter.visitRendered(this)
           this.complete()
@@ -290,54 +267,11 @@ export class Visit implements FetchRequestDelegate {
     }
   }
 
-  getCachedSnapshot() {
-    const snapshot = this.view.getCachedSnapshotForLocation(this.location) || this.getPreloadedSnapshot()
-
-    if (snapshot && (!getAnchor(this.location) || snapshot.hasAnchor(getAnchor(this.location)))) {
-      if (this.action == "restore" || snapshot.isPreviewable) {
-        return snapshot
-      }
-    }
-  }
-
-  getPreloadedSnapshot() {
-    if (this.snapshotHTML) {
-      return PageSnapshot.fromHTMLString(this.snapshotHTML)
-    }
-  }
-
-  hasCachedSnapshot() {
-    return this.getCachedSnapshot() != null
-  }
-
-  loadCachedSnapshot() {
-    const snapshot = this.getCachedSnapshot()
-    if (snapshot) {
-      const isPreview = this.shouldIssueRequest()
-      this.render(async () => {
-        this.cacheSnapshot()
-        if (this.isPageRefresh) {
-          this.adapter.visitRendered(this)
-        } else {
-          if (this.view.renderPromise) await this.view.renderPromise
-
-          await this.renderPageSnapshot(snapshot, isPreview)
-
-          this.adapter.visitRendered(this)
-          if (!isPreview) {
-            this.complete()
-          }
-        }
-      })
-    }
-  }
-
   followRedirect() {
     if (this.redirectedToLocation && !this.followedRedirect && this.response?.redirected) {
       this.adapter.visitProposedToLocation(this.redirectedToLocation, {
         action: "replace",
         response: this.response,
-        shouldCacheSnapshot: false,
         willRender: false
       })
       this.followedRedirect = true
@@ -443,18 +377,7 @@ export class Visit implements FetchRequestDelegate {
   }
 
   shouldIssueRequest() {
-    if (this.action == "restore") {
-      return !this.hasCachedSnapshot()
-    } else {
-      return this.willRender
-    }
-  }
-
-  cacheSnapshot() {
-    if (!this.snapshotCached) {
-      this.view.cacheSnapshot(this.snapshot).then((snapshot) => snapshot && this.visitCachedSnapshot(snapshot))
-      this.snapshotCached = true
-    }
+    return this.willRender
   }
 
   async render(callback: () => void | Promise<void>) {
@@ -467,9 +390,9 @@ export class Visit implements FetchRequestDelegate {
     delete this.frame
   }
 
-  async renderPageSnapshot(snapshot: PageSnapshot, isPreview: boolean) {
+  async renderPageSnapshot(snapshot: PageSnapshot) {
     await this.viewTransitioner.renderChange(this.view.shouldTransitionTo(snapshot), async () => {
-      await this.view.renderPage(snapshot, isPreview, this.willRender, this)
+      await this.view.renderPage(snapshot, this.willRender, this)
       this.performScroll()
     })
   }

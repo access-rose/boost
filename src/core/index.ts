@@ -20,8 +20,8 @@ export { PageRenderer, PageSnapshot, FrameRenderer, fetch, config }
 const session = new Session(recentRequests)
 
 // Rename `navigator` to avoid shadowing `window.navigator`
-const { cache, navigator: sessionNavigator } = session
-export { session, cache, sessionNavigator as navigator }
+const { navigator: sessionNavigator } = session
+export { session, sessionNavigator as navigator }
 
 /**
  * Starts the main session.
@@ -52,7 +52,6 @@ export function registerAdapter(adapter: Adapter) {
  * already been changed for this visit or not
  * @param options.referrer Specifies the referrer of this visit such that
  * navigations to the same page will not result in a new history entry.
- * @param options.snapshotHTML Cached snapshot to render
  * @param options.response Response of the specified location
  */
 export function visit(location: Locatable, options?: Partial<VisitOptions>) {

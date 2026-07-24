@@ -39,15 +39,6 @@ export function getLocationForLink(link: Element) {
   return expandURL(link.getAttribute("href") || "")
 }
 
-export function getRequestURL(url: URL) {
-  const anchor = getAnchor(url)
-  return anchor != null ? url.href.slice(0, -(anchor.length + 1)) : url.href
-}
-
-export function toCacheKey(url: URL) {
-  return getRequestURL(url)
-}
-
 export function urlsAreEqual(left: Locatable, right: Locatable) {
   return expandURL(left).href == expandURL(right).href
 }

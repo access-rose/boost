@@ -11,7 +11,6 @@ class NativeAdapterSupportTest {
   finishedVisitRequests = []
   startedFormSubmissions = []
   finishedFormSubmissions = []
-  linkPrefetchRequests = []
 
   // Adapter interface
 
@@ -54,10 +53,6 @@ class NativeAdapterSupportTest {
   }
 
   pageInvalidated() {}
-
-  linkPrefetchingIsEnabledForLocation(location) {
-    this.linkPrefetchRequests.push(location)
-  }
 }
 
 let adapter
@@ -99,15 +94,6 @@ test("visit started notifies adapter", async () => {
 
   const [visit] = adapter.startedVisits
   assert.equal(visit.location, locatable)
-})
-
-test("test visit has cached snapshot returns boolean", async () => {
-  const locatable = window.location.toString()
-
-  await Turbo.navigator.startVisit(locatable)
-
-  const [visit] = adapter.startedVisits
-  assert.equal(visit.hasCachedSnapshot(), false)
 })
 
 test("visit completed notifies adapter", async () => {
@@ -208,14 +194,4 @@ test("visit follows redirect and proposes replace visit to adapter", async () =>
   const [visit] = adapter.proposedVisits
   assert.equal(visit.location, redirectedLocation)
   assert.equal(visit.options.action, "replace")
-})
-
-test ("link prefetch requests verify with adapter", async () => {
-  const locatable = window.location.toString()
-
-  Turbo.navigator.linkPrefetchingIsEnabledForLocation(locatable)
-  assert.equal(adapter.linkPrefetchRequests.length, 1)
-
-  const [location] = adapter.linkPrefetchRequests
-  assert.equal(location, locatable)
 })

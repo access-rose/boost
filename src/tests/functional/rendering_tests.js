@@ -519,82 +519,6 @@ test("preserves permanent element through Turbo Stream append", async ({ page })
   await expect(page.locator("#permanent-in-frame")).toHaveText("Rendering")
 })
 
-test("preserves input values", async ({ page }) => {
-  await page.fill("#text-input", "test")
-  await page.click("#checkbox-input")
-  await page.click("#radio-input")
-  await page.fill("#textarea", "test")
-  await page.selectOption("#select", "2")
-  await page.selectOption("#select-multiple", "2")
-
-  await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
-  await page.goBack()
-  await nextEventNamed(page, "turbo:load")
-
-  await expect(page.locator("#text-input")).toHaveValue("test")
-  await expect(page.locator("#checkbox-input")).toBeChecked()
-  await expect(page.locator("#radio-input")).toBeChecked()
-  await expect(page.locator("#textarea")).toHaveValue("test")
-  await expect(page.locator("#select")).toHaveValue("2")
-  await expect(page.locator("#select-multiple")).toHaveValue("2")
-})
-
-test("does not preserve password values", async ({ page }) => {
-  await page.fill("#password-input", "test")
-
-  await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
-  await page.goBack()
-  await nextEventNamed(page, "turbo:load")
-
-  await expect(page.locator("#password-input")).toHaveValue("")
-})
-
-test("<input type='reset'> clears values when restored from cache", async ({ page }) => {
-  await page.fill("#text-input", "test")
-  await page.click("#checkbox-input")
-  await page.click("#radio-input")
-  await page.fill("#textarea", "test")
-  await page.selectOption("#select", "2")
-  await page.selectOption("#select-multiple", "2")
-
-  await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
-  await page.goBack()
-  await nextEventNamed(page, "turbo:load")
-
-  await page.click("#reset-input")
-
-  await expect(page.locator("#text-input")).toHaveValue("")
-  await expect(page.locator("#checkbox-input")).not.toBeChecked()
-  await expect(page.locator("#radio-input")).not.toBeChecked()
-  await expect(page.locator("#textarea")).toHaveValue("")
-  await expect(page.locator("#select")).toHaveValue("1")
-  await expect(page.locator("#select-multiple")).toHaveValue("")
-})
-
-test("before-cache event", async ({ page }) => {
-  await page.evaluate(() => {
-    addEventListener("turbo:before-cache", () => (document.body.innerHTML = "Modified"), { once: true })
-  })
-  await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
-  await page.goBack()
-  await nextEventNamed(page, "turbo:load")
-
-  await expect(page.locator("body")).toHaveText("Modified")
-})
-
-test("mutation record-cache notification", async ({ page }) => {
-  await modifyBodyAfterRemoval(page)
-  await page.click("#same-origin-link")
-  await nextBody(page)
-  await page.goBack()
-
-  await expect(page.locator("body")).toHaveText("Modified")
-})
-
 test("error pages", async ({ page }) => {
   await page.click("#nonexistent-link")
 
@@ -633,20 +557,4 @@ function isNoscriptStylesheetEvaluated(page) {
   return page.evaluate(
     () => getComputedStyle(document.body).getPropertyValue("--black-if-noscript-evaluated").trim() === "black"
   )
-}
-
-function modifyBodyAfterRemoval(page) {
-  return page.evaluate(() => {
-    const { documentElement, body } = document
-    const observer = new MutationObserver((records) => {
-      for (const record of records) {
-        if (Array.from(record.removedNodes).indexOf(body) > -1) {
-          body.innerHTML = "Modified"
-          observer.disconnect()
-          break
-        }
-      }
-    })
-    observer.observe(documentElement, { childList: true })
-  })
 }

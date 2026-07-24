@@ -26,7 +26,6 @@ export type TurboBeforeFetchRequestEvent = CustomEvent<{
   fetchOptions: FetchRequestOptions
   url: URL
   resume: (value?: unknown) => void
-  fetchRequest?: FetchRequest
 }>
 
 export type TurboBeforeFetchResponseEvent = CustomEvent<{
@@ -179,15 +178,11 @@ export class FetchRequest {
   async perform(): Promise<FetchResponse | void> {
     const { fetchOptions } = this
     this.delegate.prepareRequest(this)
-    const event = await this.#allowRequestToBeIntercepted(fetchOptions)
+    await this.#allowRequestToBeIntercepted(fetchOptions)
     try {
       this.delegate.requestStarted(this)
 
-      if (event.detail.fetchRequest) {
-        this.response = event.detail.fetchRequest.response
-      } else {
-        this.response = fetch(this.url.href, fetchOptions)
-      }
+      this.response = fetch(this.url.href, fetchOptions)
 
       const response = await this.response
       return await this.receive(response)
