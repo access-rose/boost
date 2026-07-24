@@ -13,6 +13,7 @@ import { StreamMessageRenderer } from "./streams/stream_message_renderer"
 import { StreamObserver } from "../observers/stream_observer"
 import { clearBusyState, dispatch, findClosestRecursively, getVisitAction, markAsBusy, debounce } from "../util"
 import { PageView } from "./drive/page_view"
+import { PageScripts } from "./drive/page_scripts"
 import { FrameElement } from "../elements/frame_element"
 import { config } from "./config"
 import type { Action, Position, StreamSource } from "./types"
@@ -72,6 +73,7 @@ export class Session
   formLinkClickObserver = new FormLinkClickObserver(this, document.documentElement)
   frameRedirector = new FrameRedirector(this, document.documentElement)
   streamMessageRenderer = new StreamMessageRenderer()
+  scripts = new PageScripts()
 
   enabled = true
   started = false
@@ -307,6 +309,7 @@ export class Session
 
   pageBecameInteractive() {
     this.view.lastRenderedLocation = this.location
+    this.scripts.connectAndRender()
     this.notifyApplicationAfterPageLoad()
   }
 
@@ -327,6 +330,7 @@ export class Session
   // Page view delegate
 
   allowsImmediateRender({ element }: PageSnapshot, options: PageViewRenderOptions) {
+    this.scripts.disconnectDeparting()
     const event = this.notifyApplicationBeforeRender(element, options)
     const {
       defaultPrevented,
@@ -342,6 +346,7 @@ export class Session
 
   viewRenderedSnapshot(_snapshot: PageSnapshot, renderMethod: string) {
     this.view.lastRenderedLocation = this.history.location
+    this.scripts.connectAndRender()
     this.notifyApplicationAfterRender(renderMethod)
   }
 
@@ -368,7 +373,7 @@ export class Session
 
   applicationAllowsVisitingLocation(location: URL) {
     const event = this.notifyApplicationBeforeVisitingLocation(location)
-    return !event.defaultPrevented
+    return !event.defaultPrevented && this.scripts.allowLeaving(location)
   }
 
   notifyApplicationAfterClickingLinkToLocation(link: Element, location: URL, event: MouseEvent) {

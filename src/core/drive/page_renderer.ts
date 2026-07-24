@@ -76,10 +76,11 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
   async mergeHead() {
     const mergedHeadElements = this.mergeProvisionalElements()
     const newStylesheetElements = this.copyNewHeadStylesheetElements()
-    this.copyNewHeadScriptElements()
+    const newScriptElements = this.copyNewHeadScriptElements()
 
     await mergedHeadElements
     await newStylesheetElements
+    await newScriptElements
 
     if (this.willRender) {
       this.removeUnusedDynamicStylesheetElements()
@@ -109,10 +110,19 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
     await Promise.all(loadingElements)
   }
 
-  copyNewHeadScriptElements() {
+  async copyNewHeadScriptElements() {
+    const loadingElements: Promise<void>[] = []
+
     for (const element of this.newHeadScriptElements) {
-      document.head.appendChild(activateScriptElement(element))
+      const activatedElement = activateScriptElement(element)
+      document.head.appendChild(activatedElement)
+
+      if (activatedElement.src && activatedElement.getAttribute("data-turbo-eval") !== "false") {
+        loadingElements.push(waitForLoad(activatedElement))
+      }
     }
+
+    await Promise.all(loadingElements)
   }
 
   removeUnusedDynamicStylesheetElements() {

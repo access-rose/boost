@@ -13,6 +13,9 @@ import type { StreamSource } from "./types"
 import type { StreamMessage } from "./streams/stream_message"
 import type { ConfirmMethod, FormMode } from "./config/forms"
 import type { FrameElement } from "../elements/frame_element"
+import type { PageScript } from "./drive/page_scripts"
+
+export type { PageScript, PageScriptContext, LeaveContext } from "./drive/page_scripts"
 
 export { morphChildren, morphElements } from "./morphing"
 export { PageRenderer, PageSnapshot, FrameRenderer, fetch, config }
@@ -39,6 +42,23 @@ export function start() {
  */
 export function registerAdapter(adapter: Adapter) {
   session.registerAdapter(adapter)
+}
+
+/**
+ * Registers a page-script lifecycle under one or more names. A page opts in by
+ * adding to head a meta tag like:
+ *
+ * <meta name="turbo-script" content="name">
+ *
+ * `connect` runs when the name first becomes active, `render` on every render while it stays active,
+ * `beforeLeave` before every navigation (returning `false` cancels it), and
+ * `disconnect` when the name leaves, just before the body is swapped.
+ *
+ * @param names Name, or names, the page declares via `<meta name="turbo-script">`
+ * @param script Lifecycle callbacks
+ */
+export function registerScript(names: string | string[], script: PageScript) {
+  for (const name of Array.isArray(names) ? names : [names]) session.scripts.register(name, script)
 }
 
 /**

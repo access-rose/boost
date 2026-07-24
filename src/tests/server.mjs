@@ -89,6 +89,13 @@ router.get("/delayed_response", (request, response) => {
   setTimeout(() => response.status(parseInt(status || "200")).sendFile(fixture), 1000)
 })
 
+router.get("/delayed_script", (request, response) => {
+  const { sleep } = request.query
+  setTimeout(() => {
+    response.type("application/javascript").send("window.dep = true")
+  }, parseInt(sleep || "100", 10))
+})
+
 router.post("/messages", (request, response) => {
   const params = { ...request.body, ...request.query }
   const { content, id, status, type, target, targets } = params
