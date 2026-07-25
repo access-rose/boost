@@ -1,1 +1,1 @@
-export class TurboFrameMissingError extends Error {}
+export class BoostFrameMissingError extends Error {}

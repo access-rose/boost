@@ -134,7 +134,7 @@ export class BrowserAdapter implements Adapter {
   }
 
   reload(reason: ReloadReason) {
-    dispatch("turbo:reload", { detail: reason })
+    dispatch("boost:reload", { detail: reason })
 
     window.location.href = (this.redirectedToLocation || this.location)?.toString() || window.location.href
   }

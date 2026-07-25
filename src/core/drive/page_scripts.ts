@@ -87,7 +87,7 @@ export class PageScripts {
 
   #activeNames() {
     const names = new Set<string>()
-    for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="turbo-script"]')) {
+    for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="boost-script"]')) {
       for (const name of (meta.content || "").split(/\s+/)) {
         if (name) names.add(name)
       }

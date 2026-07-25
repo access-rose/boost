@@ -4,12 +4,12 @@ interface Node {
 }
 
 interface DocumentEventMap {
-  "turbo:before-fetch-request": import("./http/fetch_request").TurboBeforeFetchRequestEvent
-  "turbo:before-fetch-response": import("./http/fetch_request").TurboBeforeFetchResponseEvent
-  "turbo:click": import("./core/session").TurboClickEvent
-  "turbo:before-visit": import("./core/session").TurboBeforeVisitEvent
+  "boost:before-fetch-request": import("./http/fetch_request").BoostBeforeFetchRequestEvent
+  "boost:before-fetch-response": import("./http/fetch_request").BoostBeforeFetchResponseEvent
+  "boost:click": import("./core/session").BoostClickEvent
+  "boost:before-visit": import("./core/session").BoostBeforeVisitEvent
 }
 
 interface Window {
-  Turbo: typeof import("./core/index") & { StreamActions: typeof import("./core/streams/stream_actions").StreamActions }
+  Boost: typeof import("./core/index") & { StreamActions: typeof import("./core/streams/stream_actions").StreamActions }
 }

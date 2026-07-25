@@ -21,13 +21,13 @@ test("receiving a stream message", async ({ page }) => {
   await expect(messages).toHaveText(["First", "Hello world!"])
 })
 
-test("dispatches a turbo:before-stream-render event", async ({ page }) => {
+test("dispatches a boost:before-stream-render event", async ({ page }) => {
   await page.click("#append-target button")
-  await nextEventNamed(page, "turbo:submit-end")
+  await nextEventNamed(page, "boost:submit-end")
   const [[type, { newStream }, target]] = await readEventLogs(page, 1)
 
-  expect(type).toEqual("turbo:before-stream-render")
-  expect(target).toEqual("a-turbo-stream")
+  expect(type).toEqual("boost:before-stream-render")
+  expect(target).toEqual("a-boost-stream")
   expect(newStream).toContain(`action="append"`)
   expect(newStream).toContain(`target="messages"`)
 })
@@ -47,8 +47,8 @@ test("receiving a stream message with css selector target", async ({ page }) => 
 
 test("receiving a message without a template", async ({ page }) => {
   await page.evaluate(() =>
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="remove" target="messages"></turbo-stream>
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="remove" target="messages"></boost-stream>
     `)
   )
 
@@ -57,15 +57,15 @@ test("receiving a message without a template", async ({ page }) => {
 
 test("receiving a message with a <script> element", async ({ page }) => {
   await page.evaluate(() =>
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="append" target="messages">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="append" target="messages">
         <template>
           <script>
             const messages = document.querySelector("#messages .message")
             messages.textContent = "Hello from script"
           </script>
         </template>
-      </turbo-stream>
+      </boost-stream>
     `)
   )
 
@@ -82,17 +82,17 @@ test("overriding with custom StreamActions", async ({ page }) => {
       }
     }
 
-    addEventListener("turbo:before-stream-render", ({ target, detail }) => {
+    addEventListener("boost:before-stream-render", ({ target, detail }) => {
       const stream = target
 
       const defaultRender = detail.render
       detail.render = CustomActions[stream.action] || defaultRender
     })
 
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="customUpdate" target="messages">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="customUpdate" target="messages">
         <template></template>
-      </turbo-stream>
+      </boost-stream>
     `)
   }, html)
 
@@ -103,7 +103,7 @@ test("receiving a stream message over SSE", async ({ page }) => {
   await page.evaluate(() => {
     document.body.insertAdjacentHTML(
       "afterbegin",
-      `<turbo-stream-source id="stream-source" src="/__turbo/messages"></turbo-stream-source>`
+      `<boost-stream-source id="stream-source" src="/__turbo/messages"></boost-stream-source>`
     )
   })
 
@@ -134,10 +134,10 @@ test("receiving a stream message over SSE", async ({ page }) => {
 test("receiving an update stream message preserves focus if the activeElement has an [id]", async ({ page }) => {
   await page.locator("input#container-element").focus()
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="update" target="container">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="update" target="container">
         <template><textarea id="container-element"></textarea></template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
 
@@ -147,10 +147,10 @@ test("receiving an update stream message preserves focus if the activeElement ha
 test("receiving a replace stream message preserves focus if the activeElement has an [id]", async ({ page }) => {
   await page.locator("input#container-element").focus()
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="replace" target="container-element">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="replace" target="container-element">
         <template><textarea id="container-element"></textarea></template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
 
@@ -160,53 +160,53 @@ test("receiving a replace stream message preserves focus if the activeElement ha
 test("receiving a remove stream message preserves focus blurs the activeElement", async ({ page }) => {
   await page.locator("#container-element").focus()
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="remove" target="container-element"></turbo-stream>
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="remove" target="container-element"></boost-stream>
     `)
   })
 
   await expect(page.locator(":focus")).not.toBeAttached()
 })
 
-test("dispatches a turbo:before-morph-element & turbo:morph-element for each morph stream action", async ({ page }) => {
+test("dispatches a boost:before-morph-element & boost:morph-element for each morph stream action", async ({ page }) => {
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="replace" method="morph" target="message_1">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="replace" method="morph" target="message_1">
         <template>
           <div id="message_1">
             <h1>Morphed</h1>
           </div>
         </template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
 
-  await nextEventOnTarget(page, "message_1", "turbo:before-morph-element")
-  await nextEventOnTarget(page, "message_1", "turbo:morph-element")
+  await nextEventOnTarget(page, "message_1", "boost:before-morph-element")
+  await nextEventOnTarget(page, "message_1", "boost:morph-element")
   await expect(page.locator("#message_1")).toHaveText("Morphed")
 })
 
-test("preventing a turbo:before-morph-element prevents the morph", async ({ page }) => {
+test("preventing a boost:before-morph-element prevents the morph", async ({ page }) => {
   await page.evaluate(() => {
-    addEventListener("turbo:before-morph-element", (event) => {
+    addEventListener("boost:before-morph-element", (event) => {
       event.preventDefault()
     })
   })
 
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="replace" method="morph" target="message_1">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="replace" method="morph" target="message_1">
         <template>
           <div id="message_1">
             <h1>Morphed</h1>
           </div>
         </template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
 
-  await nextEventOnTarget(page, "message_1", "turbo:before-morph-element")
-  await noNextEventOnTarget(page, "message_1", "turbo:morph-element")
+  await nextEventOnTarget(page, "message_1", "boost:before-morph-element")
+  await noNextEventOnTarget(page, "message_1", "boost:morph-element")
   await expect(page.locator("#message_1")).toHaveText("Morph me")
 })
 
@@ -215,11 +215,11 @@ test("rendering a stream message into the HTML executes it", async ({ page }) =>
     document.body.insertAdjacentHTML(
       "afterbegin",
       `
-        <turbo-stream action="append" target="messages">
+        <boost-stream action="append" target="messages">
           <template>
             <div class="message">Hello world!</div>
           </template>
-        </turbo-stream>
+        </boost-stream>
       `
     )
   })

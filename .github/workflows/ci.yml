@@ -40,5 +40,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: turbo-dist
+        name: boost-dist
         path: dist/*

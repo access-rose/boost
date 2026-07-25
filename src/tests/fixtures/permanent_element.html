@@ -2,21 +2,21 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Turbo</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <title>Boost</title>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
   </head>
   <body>
     <section>
       <h1>Permanent element</h1>
     </section>
-    <div id="permanent" data-turbo-permanent>Permanent element</div>
+    <div id="permanent" data-boost-permanent>Permanent element</div>
 
-    <turbo-frame id="frame">
-      <div id="permanent-in-frame" data-turbo-permanent>Permanent element</div>
-    </turbo-frame>
+    <boost-frame id="frame">
+      <div id="permanent-in-frame" data-boost-permanent>Permanent element</div>
+    </boost-frame>
 
-    <video id="permanent-video" data-turbo-permanent>
+    <video id="permanent-video" data-boost-permanent>
       <source src="/src/tests/fixtures/video.webm" type="video/webm">
       <source src="/src/tests/fixtures/video.mp4" type="video/mp4">
     </video>

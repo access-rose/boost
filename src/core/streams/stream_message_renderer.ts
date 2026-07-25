@@ -32,7 +32,7 @@ function getPermanentElementMapForFragment(fragment: DocumentFragment) {
   for (const permanentElementInDocument of permanentElementsInDocument) {
     const { id } = permanentElementInDocument
 
-    for (const streamElement of fragment.querySelectorAll<StreamElement>("turbo-stream")) {
+    for (const streamElement of fragment.querySelectorAll<StreamElement>("boost-stream")) {
       const elementInStream = getPermanentElementById(streamElement.templateElement.content, id)
 
       if (elementInStream) {
@@ -45,9 +45,9 @@ function getPermanentElementMapForFragment(fragment: DocumentFragment) {
 }
 
 async function withAutofocusFromFragment(fragment: DocumentFragment, callback: () => void) {
-  const generatedID = `turbo-stream-autofocus-${uuid()}`
-  const turboStreams = fragment.querySelectorAll<StreamElement>("turbo-stream")
-  const elementWithAutofocus = firstAutofocusableElementInStreams(turboStreams)
+  const generatedID = `boost-stream-autofocus-${uuid()}`
+  const boostStreams = fragment.querySelectorAll<StreamElement>("boost-stream")
+  const elementWithAutofocus = firstAutofocusableElementInStreams(boostStreams)
   let willAutofocusId: string | null = null
 
   if (elementWithAutofocus) {

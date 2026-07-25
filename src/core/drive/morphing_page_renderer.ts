@@ -19,7 +19,7 @@ export class MorphingPageRenderer extends PageRenderer {
       }
     })
 
-    dispatch("turbo:morph", { detail: { currentElement, newElement } })
+    dispatch("boost:morph", { detail: { currentElement, newElement } })
   }
 
   async preservingPermanentElements(callback: () => void) {

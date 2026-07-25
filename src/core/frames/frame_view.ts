@@ -10,7 +10,7 @@ export type FrameViewDelegate = ViewDelegate<Snapshot<FrameElement>>
 
 export class FrameView extends View<FrameElement, Snapshot<FrameElement>, FrameRenderer, FrameViewDelegate> {
   missing() {
-    this.element.innerHTML = `<strong class="turbo-frame-error">Content missing</strong>`
+    this.element.innerHTML = `<strong class="boost-frame-error">Content missing</strong>`
   }
 
   get snapshot() {

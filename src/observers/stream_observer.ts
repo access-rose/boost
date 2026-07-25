@@ -18,14 +18,14 @@ export class StreamObserver {
   start() {
     if (!this.#started) {
       this.#started = true
-      addEventListener("turbo:before-fetch-response", this.inspectFetchResponse, false)
+      addEventListener("boost:before-fetch-response", this.inspectFetchResponse, false)
     }
   }
 
   stop() {
     if (this.#started) {
       this.#started = false
-      removeEventListener("turbo:before-fetch-response", this.inspectFetchResponse, false)
+      removeEventListener("boost:before-fetch-response", this.inspectFetchResponse, false)
     }
   }
 

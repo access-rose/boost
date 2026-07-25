@@ -102,7 +102,7 @@ router.post("/messages", (request, response) => {
   if (typeof content == "string") {
     receiveMessage(content, id, target)
     if (type == "stream" && acceptsStreams(request)) {
-      response.type("text/vnd.turbo-stream.html; charset=utf-8")
+      response.type("text/vnd.boost-stream.html; charset=utf-8")
       response.send(targets ? renderMessageForTargets(content, id, targets) : renderMessage(content, id, target))
     } else {
       response.sendStatus(parseInt(status || "201", 10))
@@ -117,7 +117,7 @@ router.post("/refreshes", (request, response) => {
   const { requestId } = params
 
   if(acceptsStreams(request)){
-    response.type("text/vnd.turbo-stream.html; charset=utf-8")
+    response.type("text/vnd.boost-stream.html; charset=utf-8")
     response.send(renderPageRefresh(requestId))
   } else {
     response.sendStatus(201)
@@ -125,12 +125,12 @@ router.post("/refreshes", (request, response) => {
 })
 
 router.get("/request_id_header", (request, response) => {
-  const turboRequestHeader = request.get("X-Turbo-Request-Id")
+  const boostRequestHeader = request.get("X-Boost-Request-Id")
 
-  if (turboRequestHeader) {
-    response.send(turboRequestHeader);
+  if (boostRequestHeader) {
+    response.send(boostRequestHeader);
   } else {
-    response.status(404).send("X-Turbo-Request header not found")
+    response.status(404).send("X-Boost-Request header not found")
   }
 })
 
@@ -142,7 +142,7 @@ router.get("/stream-response", (request, response) => {
   const params = { ...request.body, ...request.query }
   const { content, target, targets } = params
   if (acceptsStreams(request)) {
-    response.type("text/vnd.turbo-stream.html; charset=utf-8")
+    response.type("text/vnd.boost-stream.html; charset=utf-8")
     response.send(targets ? renderMessageForTargets(content, null, targets) : renderMessage(content, target))
   } else {
     response.sendStatus(422)
@@ -155,7 +155,7 @@ router.put("/messages/:id", (request, response) => {
   if (typeof content == "string") {
     receiveMessage(content, id)
     if (type == "stream" && acceptsStreams(request)) {
-      response.type("text/vnd.turbo-stream.html; charset=utf-8")
+      response.type("text/vnd.boost-stream.html; charset=utf-8")
       response.send(renderMessage(id + ": " + content, id))
     } else {
       response.sendStatus(200)
@@ -206,28 +206,28 @@ function receiveMessage(content, id, target) {
 
 function renderMessage(content, id, target = "messages") {
   return `
-    <turbo-stream id="${id}" action="append" target="${target}"><template>
+    <boost-stream id="${id}" action="append" target="${target}"><template>
       <div class="message">${escapeHTML(content)}</div>
-    </template></turbo-stream>
+    </template></boost-stream>
   `
 }
 
 function renderMessageForTargets(content, id, targets) {
   return `
-    <turbo-stream id="${id}" action="append" targets="${targets}"><template>
+    <boost-stream id="${id}" action="append" targets="${targets}"><template>
       <div class="message">${escapeHTML(content)}</div>
-    </template></turbo-stream>
+    </template></boost-stream>
   `
 }
 
 function renderPageRefresh(requestId) {
   return `
-    <turbo-stream action="refresh" request-id="${requestId}"></turbo-stream>
+    <boost-stream action="refresh" request-id="${requestId}"></boost-stream>
   `
 }
 
 function acceptsStreams(request) {
-  return !!request.accepts("text/vnd.turbo-stream.html")
+  return !!request.accepts("text/vnd.boost-stream.html")
 }
 
 function renderSSEData(data) {

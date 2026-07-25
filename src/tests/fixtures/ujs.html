@@ -9,16 +9,16 @@
 
       Rails.start()
     </script>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
   </head>
   <body>
-    <turbo-frame id="frame">
+    <boost-frame id="frame">
       <h2>Frames: #frame</h2>
 
       <a data-remote="true" href="/src/tests/fixtures/response.js">navigate #frame to /src/tests/fixtures/frames/frame.html</a>
       <form data-remote="true" action="/src/tests/fixtures/frames/frame.html">
         <button>navigate #frame to /src/tests/fixtures/frames/frame.html</button>
       </form>
-    </turbo-frame>
+    </boost-frame>
   </body>
 </html>

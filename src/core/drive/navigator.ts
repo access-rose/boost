@@ -137,7 +137,7 @@ export class Navigator implements FormSubmissionDelegate {
   }
 
   // Same-page links are no longer handled with a Visit.
-  // This method is still needed for Turbo Native adapters.
+  // This method is still needed for Boost Native adapters.
   locationWithActionIsSamePage(location: URL, action?: Action) {
     return false
   }

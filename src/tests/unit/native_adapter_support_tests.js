@@ -1,4 +1,4 @@
-import * as Turbo from "../../index"
+import * as Boost from "../../index"
 import { assert } from "@open-wc/testing"
 
 class NativeAdapterSupportTest {
@@ -59,17 +59,17 @@ let adapter
 
 setup(() => {
   adapter = new NativeAdapterSupportTest()
-  Turbo.registerAdapter(adapter)
+  Boost.registerAdapter(adapter)
 })
 
 test("navigator adapter is native adapter", async () => {
-  assert.equal(adapter, Turbo.navigator.adapter)
+  assert.equal(adapter, Boost.navigator.adapter)
 })
 
 test("visit proposal location is proposed to adapter", async () => {
   const url = new URL(window.location.toString())
 
-  Turbo.navigator.proposeVisit(url)
+  Boost.navigator.proposeVisit(url)
   assert.equal(adapter.proposedVisits.length, 1)
 
   const [visit] = adapter.proposedVisits
@@ -79,7 +79,7 @@ test("visit proposal location is proposed to adapter", async () => {
 test("visit proposal external location is proposed to adapter", async () => {
   const url = new URL("https://example.com/")
 
-  Turbo.navigator.proposeVisit(url)
+  Boost.navigator.proposeVisit(url)
   assert.equal(adapter.proposedVisits.length, 1)
 
   const [visit] = adapter.proposedVisits
@@ -89,7 +89,7 @@ test("visit proposal external location is proposed to adapter", async () => {
 test("visit started notifies adapter", async () => {
   const locatable = window.location.toString()
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
   assert.equal(adapter.startedVisits.length, 1)
 
   const [visit] = adapter.startedVisits
@@ -99,7 +99,7 @@ test("visit started notifies adapter", async () => {
 test("visit completed notifies adapter", async () => {
   const locatable = window.location.toString()
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
 
   const [startedVisit] = adapter.startedVisits
   startedVisit.complete()
@@ -111,7 +111,7 @@ test("visit completed notifies adapter", async () => {
 test("visit request started notifies adapter", async () => {
   const locatable = window.location.toString()
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
 
   const [startedVisit] = adapter.startedVisits
   startedVisit.startRequest()
@@ -124,7 +124,7 @@ test("visit request started notifies adapter", async () => {
 test("visit request completed notifies adapter", async () => {
   const locatable = window.location.toString()
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
 
   const [startedVisit] = adapter.startedVisits
   startedVisit.recordResponse({ statusCode: 200, responseHTML: "responseHtml", redirected: false })
@@ -137,7 +137,7 @@ test("visit request completed notifies adapter", async () => {
 test("visit request failed notifies adapter", async () => {
   const locatable = window.location.toString()
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
 
   const [startedVisit] = adapter.startedVisits
   startedVisit.recordResponse({ statusCode: 404, responseHTML: "responseHtml", redirected: false })
@@ -150,7 +150,7 @@ test("visit request failed notifies adapter", async () => {
 test("visit request finished notifies adapter", async () => {
   const locatable = window.location.toString()
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
 
   const [startedVisit] = adapter.startedVisits
   startedVisit.finishRequest()
@@ -161,7 +161,7 @@ test("visit request finished notifies adapter", async () => {
 })
 
 test("form submission started notifies adapter", async () => {
-  Turbo.navigator.formSubmissionStarted("formSubmissionStub")
+  Boost.navigator.formSubmissionStarted("formSubmissionStub")
   assert.equal(adapter.startedFormSubmissions.length, 1)
 
   const [startedFormSubmission] = adapter.startedFormSubmissions
@@ -169,7 +169,7 @@ test("form submission started notifies adapter", async () => {
 })
 
 test("form submission finished notifies adapter", async () => {
-  Turbo.navigator.formSubmissionFinished("formSubmissionStub")
+  Boost.navigator.formSubmissionFinished("formSubmissionStub")
   assert.equal(adapter.finishedFormSubmissions.length, 1)
 
   const [finishedFormSubmission] = adapter.finishedFormSubmissions
@@ -181,7 +181,7 @@ test("visit follows redirect and proposes replace visit to adapter", async () =>
   const locatable = window.location.toString()
   const redirectedLocation = "https://example.com"
 
-  Turbo.navigator.startVisit(locatable)
+  Boost.navigator.startVisit(locatable)
 
   const [startedVisit] = adapter.startedVisits
   startedVisit.redirectedToLocation = redirectedLocation

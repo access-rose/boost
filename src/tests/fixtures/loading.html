@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html data-skip-event-details="turbo:before-render">
+<html data-skip-event-details="boost:before-render">
   <head>
     <meta charset="utf-8">
-    <title>Turbo</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <title>Boost</title>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
   </head>
   <body>
     <details id="loading-lazy">
       <summary>Lazy-loaded</summary>
 
-      <turbo-frame id="hello" src="/src/tests/fixtures/frames/hello.html" loading="lazy"></turbo-frame>
+      <boost-frame id="hello" src="/src/tests/fixtures/frames/hello.html" loading="lazy"></boost-frame>
     </details>
 
-    <a id="link-lazy-frame" href="/src/tests/fixtures/frames.html" data-turbo-frame="hello">Navigate #loading-lazy turbo-frame</a>
+    <a id="link-lazy-frame" href="/src/tests/fixtures/frames.html" data-boost-frame="hello">Navigate #loading-lazy boost-frame</a>
 
     <details id="loading-eager">
       <summary>Eager-loaded</summary>
 
-      <turbo-frame id="frame" src="/src/tests/fixtures/frames/frame.html" loading="eager"></turbo-frame>
+      <boost-frame id="frame" src="/src/tests/fixtures/frames/frame.html" loading="eager"></boost-frame>
     </details>
 
     <p><a id="one" href="one.html">One</a></p>

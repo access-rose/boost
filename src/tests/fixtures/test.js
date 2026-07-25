@@ -53,7 +53,7 @@
 
   window.bodyMutationLogs = []
   addEventListener(
-    "turbo:load",
+    "boost:load",
     () => {
       new MutationObserver((mutations) => {
         for (const { addedNodes } of mutations) {
@@ -66,33 +66,33 @@
     { once: true }
   )
 })([
-  "turbo:click",
-  "turbo:before-stream-render",
-  "turbo:before-render",
-  "turbo:before-visit",
-  "turbo:load",
-  "turbo:render",
-  "turbo:before-fetch-request",
-  "turbo:submit-start",
-  "turbo:submit-end",
-  "turbo:before-fetch-response",
-  "turbo:visit",
-  "turbo:before-frame-render",
-  "turbo:fetch-request-error",
-  "turbo:frame-load",
-  "turbo:frame-render",
-  "turbo:frame-missing",
-  "turbo:before-frame-morph",
-  "turbo:morph",
-  "turbo:before-morph-element",
-  "turbo:morph-element",
-  "turbo:before-morph-attribute",
-  "turbo:reload"
+  "boost:click",
+  "boost:before-stream-render",
+  "boost:before-render",
+  "boost:before-visit",
+  "boost:load",
+  "boost:render",
+  "boost:before-fetch-request",
+  "boost:submit-start",
+  "boost:submit-end",
+  "boost:before-fetch-response",
+  "boost:visit",
+  "boost:before-frame-render",
+  "boost:fetch-request-error",
+  "boost:frame-load",
+  "boost:frame-render",
+  "boost:frame-missing",
+  "boost:before-frame-morph",
+  "boost:morph",
+  "boost:before-morph-element",
+  "boost:morph-element",
+  "boost:before-morph-attribute",
+  "boost:reload"
 ])
 
 window.visitLogs = []
 
-addEventListener("turbo:visit", ({ detail }) => window.visitLogs.push(detail))
+addEventListener("boost:visit", ({ detail }) => window.visitLogs.push(detail))
 
 customElements.define(
   "custom-link-element",
@@ -126,7 +126,7 @@ customElements.define(
 )
 
 customElements.define(
-  "turbo-toggle",
+  "boost-toggle",
   class extends HTMLElement {
     constructor() {
       super()
@@ -134,7 +134,7 @@ customElements.define(
     }
     connectedCallback() {
       this.shadowRoot.innerHTML = `
-      <div data-turbo="${this.getAttribute("turbo") || "true"}">
+      <div data-boost="${this.getAttribute("turbo") || "true"}">
         <slot></slot>
       </div>
     `

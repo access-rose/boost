@@ -30,13 +30,13 @@ test("programmatically visiting a same-origin location", async ({ page }) => {
   await expect(page).not.toHaveURL(urlBeforeVisit)
   expect(await visitAction(page)).toEqual("advance")
 
-  const { url: urlFromBeforeVisitEvent } = await nextEventNamed(page, "turbo:before-visit")
+  const { url: urlFromBeforeVisitEvent } = await nextEventNamed(page, "boost:before-visit")
   await expect(page).not.toHaveURL(withPathname(urlFromBeforeVisitEvent))
 
-  const { url: urlFromVisitEvent } = await nextEventNamed(page, "turbo:visit")
+  const { url: urlFromVisitEvent } = await nextEventNamed(page, "boost:visit")
   await expect(page).not.toHaveURL(withPathname(urlFromVisitEvent))
 
-  const { timing } = await nextEventNamed(page, "turbo:load")
+  const { timing } = await nextEventNamed(page, "boost:load")
   expect(timing).toBeTruthy()
 })
 
@@ -77,7 +77,7 @@ test("visiting a location served with an unknown non-HTML content type", async (
   await visitLocation(page, "/__turbo/file.unknown_svg")
   await nextBeat()
 
-  // Because the file extension is not a known extension, Turbo will request it first to
+  // Because the file extension is not a known extension, Boost will request it first to
   // determine the content type and only then refresh the full page to the provided location
   expect(requestedUrls).toEqual([
     ["fetch", "http://localhost:9000/__turbo/file.unknown_svg"],
@@ -93,7 +93,7 @@ test("visiting a location served with an unknown non-HTML content type added to 
   page.on('request', (req) => { requestedUrls.push([req.resourceType(), req.url()]) })
 
   page.evaluate(() => {
-    window.Turbo.config.drive.unvisitableExtensions.add(".unknown_svg")
+    window.Boost.config.drive.unvisitableExtensions.add(".unknown_svg")
   })
 
   const urlBeforeVisit = page.url()
@@ -126,8 +126,8 @@ test("refreshing a location with a non-HTML extension", async ({ page }) => {
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("canceling a turbo:click event falls back to built-in browser navigation", async ({ page }) => {
-  await cancelNextEvent(page, "turbo:click")
+test("canceling a boost:click event falls back to built-in browser navigation", async ({ page }) => {
+  await cancelNextEvent(page, "boost:click")
   await Promise.all([page.waitForNavigation(), page.click("#same-origin-link")])
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
@@ -149,38 +149,38 @@ test("canceling a before-visit event prevents navigation", async ({ page }) => {
 
 test("navigation by history is not cancelable", async ({ page }) => {
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("h1")).toHaveText("One")
 
   await cancelNextVisit(page)
   await page.goBack()
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("h1")).toHaveText("Visit")
 })
 
-test("turbo:before-fetch-request event.detail", async ({ page }) => {
+test("boost:before-fetch-request event.detail", async ({ page }) => {
   await page.click("#same-origin-link")
-  const { url, fetchOptions } = await nextEventNamed(page, "turbo:before-fetch-request")
+  const { url, fetchOptions } = await nextEventNamed(page, "boost:before-fetch-request")
 
   expect(fetchOptions.method).toEqual("GET")
   expect(url).toContain("/src/tests/fixtures/one.html")
 })
 
-test("turbo:before-fetch-request event.detail encodes searchParams", async ({ page }) => {
+test("boost:before-fetch-request event.detail encodes searchParams", async ({ page }) => {
   await page.click("#same-origin-link-search-params")
-  const { url } = await nextEventNamed(page, "turbo:before-fetch-request")
+  const { url } = await nextEventNamed(page, "boost:before-fetch-request")
 
   expect(url).toContain("/src/tests/fixtures/one.html?key=value")
 })
 
-test("turbo:before-fetch-response open new site", async ({ page }) => {
+test("boost:before-fetch-response open new site", async ({ page }) => {
   page.evaluate(() =>
     addEventListener(
-      "turbo:before-fetch-response",
+      "boost:before-fetch-response",
       async function eventListener(event) {
-        removeEventListener("turbo:before-fetch-response", eventListener, false)
+        removeEventListener("boost:before-fetch-response", eventListener, false)
         window.fetchResponseResult = {
           responseText: await event.detail.fetchResponse.responseText,
           responseHTML: await event.detail.fetchResponse.responseHTML
@@ -191,7 +191,7 @@ test("turbo:before-fetch-response open new site", async ({ page }) => {
   )
 
   await page.click("#sample-response")
-  await nextEventNamed(page, "turbo:before-fetch-response")
+  await nextEventNamed(page, "boost:before-fetch-response")
 
   const fetchResponseResult = await page.evaluate(() => window.fetchResponseResult)
 
@@ -199,15 +199,15 @@ test("turbo:before-fetch-response open new site", async ({ page }) => {
   expect(fetchResponseResult.responseHTML.indexOf("An element with an ID")).toBeGreaterThan(-1)
 })
 
-test("visits with data-turbo-stream include MIME type & search params", async ({ page }) => {
+test("visits with data-boost-stream include MIME type & search params", async ({ page }) => {
   await page.click("#stream-link")
-  const { fetchOptions, url } = await nextEventNamed(page, "turbo:before-fetch-request")
+  const { fetchOptions, url } = await nextEventNamed(page, "boost:before-fetch-request")
 
-  expect(fetchOptions.headers["Accept"]).toContain("text/vnd.turbo-stream.html")
+  expect(fetchOptions.headers["Accept"]).toContain("text/vnd.boost-stream.html")
   expect(getSearchParam(url, "key")).toEqual("value")
 })
 
-test("visits with data-turbo-stream do not set aria-busy", async ({ page }) => {
+test("visits with data-boost-stream do not set aria-busy", async ({ page }) => {
   await page.click("#stream-link")
 
   expect(
@@ -224,37 +224,37 @@ test("restoration visits always re-fetch from the network", async ({ page }) => 
   await expect(page.locator("some-injected-element")).toHaveCount(1)
 
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await page.goBack()
-  await nextEventNamed(page, "turbo:before-fetch-request")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:before-fetch-request")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("some-injected-element")).toHaveCount(0)
 })
 
-// Previews only ever fired on an advance visit to an already-visited URL: Turbo
+// Previews only ever fired on an advance visit to an already-visited URL: Boost
 // rendered the cached snapshot, then re-rendered the fetched response over it.
 // With no cache there is nothing to preview from, so revisiting renders once.
 // Counted in-page because nextEventNamed drains the event log as it scans.
 test("revisiting an already-visited location renders once, without a preview", async ({ page }) => {
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await page.goBack()
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await page.evaluate(() => {
     window.renderCount = 0
-    addEventListener("turbo:render", () => window.renderCount++)
+    addEventListener("boost:render", () => window.renderCount++)
   })
 
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   expect(await page.evaluate(() => window.renderCount), "renders once, with no preview render").toEqual(1)
 })
 
 function cancelNextVisit(page) {
-  return cancelNextEvent(page, "turbo:before-visit")
+  return cancelNextEvent(page, "boost:before-visit")
 }
 
 function contentTypeOfURL(url) {
@@ -263,42 +263,42 @@ function contentTypeOfURL(url) {
   })
 }
 
-test("can scroll to element after click-initiated turbo:visit", async ({ page }) => {
+test("can scroll to element after click-initiated boost:visit", async ({ page }) => {
   const id = "below-the-fold-link"
   await page.evaluate((id) => {
-    addEventListener("turbo:load", () => document.getElementById(id)?.scrollIntoView())
+    addEventListener("boost:load", () => document.getElementById(id)?.scrollIntoView())
   }, id)
 
   expect(await isScrolledToTop(page), "starts unscrolled").toBeTruthy()
 
   await page.click("#same-page-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
-  expect(await isScrolledToSelector(page, "#" + id), "scrolls after click-initiated turbo:load").toBeTruthy()
+  expect(await isScrolledToSelector(page, "#" + id), "scrolls after click-initiated boost:load").toBeTruthy()
 })
 
-test("can scroll to element after history-initiated turbo:visit", async ({ page }) => {
+test("can scroll to element after history-initiated boost:visit", async ({ page }) => {
   const id = "below-the-fold-link"
   await page.evaluate((id) => {
-    addEventListener("turbo:load", () => document.getElementById(id)?.scrollIntoView())
+    addEventListener("boost:load", () => document.getElementById(id)?.scrollIntoView())
   }, id)
 
   await scrollToSelector(page, "#" + id)
   await page.click("#" + id)
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await page.goBack()
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
-  expect(await isScrolledToSelector(page, "#" + id), "scrolls after history-initiated turbo:load").toBeTruthy()
+  expect(await isScrolledToSelector(page, "#" + id), "scrolls after history-initiated boost:load").toBeTruthy()
 })
 
 test("Visit with network error", async ({ page }) => {
   await page.evaluate(() => {
-    addEventListener("turbo:fetch-request-error", (event) => event.preventDefault())
+    addEventListener("boost:fetch-request-error", (event) => event.preventDefault())
   })
   await page.context().setOffline(true)
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:fetch-request-error")
+  await nextEventNamed(page, "boost:fetch-request-error")
 })
 
 test("Visit direction data attribute when clicking a link", async ({ page }) => {
@@ -308,7 +308,7 @@ test("Visit direction data attribute when clicking a link", async ({ page }) => 
 
 test("Visit direction data attribute when navigating back", async ({ page }) => {
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await resetMutationLogs(page)
 
@@ -319,9 +319,9 @@ test("Visit direction data attribute when navigating back", async ({ page }) => 
 
 test("Visit direction attribute when navigating forward", async ({ page }) => {
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await page.goBack()
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   page.goForward()
 
@@ -334,12 +334,12 @@ test("Visit direction attribute on a replace visit", async ({ page }) => {
   await assertVisitDirectionAttribute(page, "none")
 })
 
-test("Turbo history state after a reload", async ({ page }) => {
+test("Boost history state after a reload", async ({ page }) => {
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await reloadPage(page)
   expect(
-    await page.evaluate(() => window.history.state.turbo.restorationIndex),
+    await page.evaluate(() => window.history.state.boost.restorationIndex),
     "restorationIndex is persisted between reloads"
   ).toEqual(
     1
@@ -347,10 +347,10 @@ test("Turbo history state after a reload", async ({ page }) => {
 })
 
 async function visitLocation(page, location) {
-  return page.evaluate((location) => window.Turbo.visit(location), location)
+  return page.evaluate((location) => window.Boost.visit(location), location)
 }
 
 async function assertVisitDirectionAttribute(page, direction) {
-  expect(await nextAttributeMutationNamed(page, "html", "data-turbo-visit-direction")).toEqual(direction)
-  await expect(page.locator("[data-turbo-visit-direction]")).not.toBeAttached()
+  expect(await nextAttributeMutationNamed(page, "html", "data-boost-visit-direction")).toEqual(direction)
+  await expect(page.locator("[data-boost-visit-direction]")).not.toBeAttached()
 }

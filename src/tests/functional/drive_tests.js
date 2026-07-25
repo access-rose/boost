@@ -24,7 +24,7 @@ test("drive to external link", async ({ page }) => {
   await expect(page.locator("body")).toHaveText("Hello from the outside world")
 })
 
-test("drive enabled by default; click link inside data-turbo='false'", async ({ page }) => {
+test("drive enabled by default; click link inside data-boost='false'", async ({ page }) => {
   await page.click("#drive_disabled")
 
   await expect(page).toHaveURL(withPathname(path))

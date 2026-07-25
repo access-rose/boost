@@ -21,15 +21,15 @@ test("drive disabled by default; click normal link", async ({ page }) => {
   expect(await visitAction(page)).toEqual("load")
 })
 
-test("drive disabled by default; click link inside data-turbo='true'", async ({ page }) => {
+test("drive disabled by default; click link inside data-boost='true'", async ({ page }) => {
   await page.click("#drive_enabled")
 
   await expect(page).toHaveURL(withPathname(path))
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("drive disabled by default; submit form inside data-turbo='true'", async ({ page }) => {
-  await setLocalStorageFromEvent(page, "turbo:submit-start", "formSubmitted", "true")
+test("drive disabled by default; submit form inside data-boost='true'", async ({ page }) => {
+  await setLocalStorageFromEvent(page, "boost:submit-start", "formSubmitted", "true")
 
   await page.click("#no_submitter_drive_enabled a#requestSubmit")
 
@@ -39,17 +39,17 @@ test("drive disabled by default; submit form inside data-turbo='true'", async ({
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("drive disabled by default; links within <turbo-frame> navigate with Turbo", async ({ page }) => {
+test("drive disabled by default; links within <boost-frame> navigate with Boost", async ({ page }) => {
   await page.click("#frame a")
-  await nextEventOnTarget(page, "frame", "turbo:frame-render")
+  await nextEventOnTarget(page, "frame", "boost:frame-render")
 })
 
-test("drive disabled by default; forms within <turbo-frame> navigate with Turbo", async ({ page }) => {
+test("drive disabled by default; forms within <boost-frame> navigate with Boost", async ({ page }) => {
   await page.click("#frame button")
-  await nextEventOnTarget(page, "frame", "turbo:frame-render")
+  await nextEventOnTarget(page, "frame", "boost:frame-render")
 })
 
-test("drive disabled by default; slot within <turbo-frame> navigate with Turbo", async ({ page }) => {
+test("drive disabled by default; slot within <boost-frame> navigate with Boost", async ({ page }) => {
   await page.click("#frame-navigation-with-slot")
-  await nextEventOnTarget(page, "frame", "turbo:frame-render")
+  await nextEventOnTarget(page, "frame", "boost:frame-render")
 })

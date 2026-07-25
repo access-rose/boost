@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html id="html" data-skip-event-details="turbo:submit-start turbo:submit-end turbo:fetch-request-error">
+<html id="html" data-skip-event-details="boost:submit-start boost:submit-end boost:fetch-request-error">
   <head>
     <meta charset="utf-8">
     <title>Form</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
     <style id="form-fixture-styles">
       dialog {
@@ -25,29 +25,29 @@
         <input type="hidden" name="greeting" value="Hello from a redirect">
         <input id="standard-get-form-submit" type="submit" value="form[method=get]">
       </form>
-      <form action="/__turbo/redirect" method="post" class="redirect" data-turbo-frame="_top">
+      <form action="/__turbo/redirect" method="post" class="redirect" data-boost-frame="_top">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <button>form[data-turbo-frame=_top]</button>
+        <button>form[data-boost-frame=_top]</button>
       </form>
-      <form action="/__turbo/redirect" method="get" data-turbo-stream class="redirect">
+      <form action="/__turbo/redirect" method="get" data-boost-stream class="redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/form.html">
         <input type="hidden" name="greeting" value="Hello from a redirect">
         <input id="standard-get-form-with-stream-opt-in-submit" type="submit" value="form[method=get]">
       </form>
       <form action="/__turbo/redirect" class="redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/form.html">
-        <button id="standard-get-form-with-stream-opt-in-submitter" data-turbo-stream>form[method=get] button[data-turbo-stream]</button>
+        <button id="standard-get-form-with-stream-opt-in-submitter" data-boost-stream>form[method=get] button[data-boost-stream]</button>
       </form>
       <form action="/__turbo/redirect" method="post" class="redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/form.html">
         <input type="hidden" name="greeting" value="Hello from a redirect">
-        <input id="submits-with-form-input" type="submit" value="Save" data-turbo-submits-with="Saving...">
+        <input id="submits-with-form-input" type="submit" value="Save" data-boost-submits-with="Saving...">
       </form>
       <form action="/__turbo/redirect" method="post" class="redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/form.html">
         <input type="hidden" name="sleep" value="200">
         <input type="hidden" name="greeting" value="Hello from a redirect">
-        <button id="submits-with-form-button" type="submit" data-turbo-submits-with="Saving...">Save</button>
+        <button id="submits-with-form-button" type="submit" data-boost-submits-with="Saving...">Save</button>
       </form>
       <hr>
       <form>
@@ -97,9 +97,9 @@
         <input type="hidden" name="query" value="2">
         <input type="submit">
       </form>
-      <form action="/__turbo/redirect" method="post" class="confirm" data-turbo-confirm="Are you sure?">
+      <form action="/__turbo/redirect" method="post" class="confirm" data-boost-confirm="Are you sure?">
         <input type="submit">
-        <button type="submit" name="greeting" id="secondary_submitter" data-turbo-confirm="Are you really sure?" formaction="/__turbo/redirect?path=/src/tests/fixtures/one.html" formmethod="post" value="secondary_submitter">Secondary action</button>
+        <button type="submit" name="greeting" id="secondary_submitter" data-boost-confirm="Are you really sure?" formaction="/__turbo/redirect?path=/src/tests/fixtures/one.html" formmethod="post" value="secondary_submitter">Secondary action</button>
       </form>
     </div>
     <hr>
@@ -167,24 +167,24 @@
       </form>
 
       <form action="/src/tests/fixtures/frames/form.html" method="get">
-        <button type="submit" data-turbo-frame="frame">GET to Frame</button>
+        <button type="submit" data-boost-frame="frame">GET to Frame</button>
       </form>
 
       <form action="/__turbo/redirect" method="post">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/form.html">
-        <button type="submit" data-turbo-frame="frame">POST to Frame</button>
+        <button type="submit" data-boost-frame="frame">POST to Frame</button>
       </form>
     </div>
     <hr>
-    <div id="turbo-false">
-      <form action="/__turbo/redirect" method="post" data-turbo="false">
+    <div id="boost-false">
+      <form action="/__turbo/redirect" method="post" data-boost="false">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
         <input type="submit">
       </form>
 
       <form action="/__turbo/redirect" method="post">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <input type="submit" data-turbo="false">
+        <input type="submit" data-boost="false">
       </form>
     </div>
     <hr>
@@ -203,15 +203,15 @@
       </dialog>
 
       <hr>
-      <dialog id="dialog-method-turbo-frame" open>
+      <dialog id="dialog-method-boost-frame" open>
         <form action="/__turbo/redirect" method="dialog">
           <input type="hidden" name="path" value="/src/tests/fixtures/frames/frame.html">
           <button>Close</button>
         </form>
       </dialog>
 
-      <dialog id="dialog-formmethod-turbo-frame" open>
-        <form action="/__turbo/redirect" method="post" data-turbo-frame="frame">
+      <dialog id="dialog-formmethod-boost-frame" open>
+        <form action="/__turbo/redirect" method="post" data-boost-frame="frame">
           <input type="hidden" name="path" value="/src/tests/fixtures/frames/frame.html">
           <button formmethod="dialog">Close</button>
         </form>
@@ -228,35 +228,35 @@
     </div>
     <hr>
     <div id="targets-frame">
-      <form id="form_one" action="/__turbo/redirect" method="post" data-turbo-frame="frame" class="one">
+      <form id="form_one" action="/__turbo/redirect" method="post" data-boost-frame="frame" class="one">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
         <button type="submit">Submit</button>
       </form>
 
-      <form action="/__turbo/redirect" method="post" data-turbo-frame="frame">
+      <form action="/__turbo/redirect" method="post" data-boost-frame="frame">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/frame.html">
         <button id="targets-frame-post-form-submit" type="submit">targets-frame form[method=post]</button>
       </form>
 
-      <form action="/__turbo/redirect" method="get" data-turbo-frame="frame">
+      <form action="/__turbo/redirect" method="get" data-boost-frame="frame">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/frame.html">
         <button id="targets-frame-get-form-submit" type="submit">targets-frame form[method=get]</button>
       </form>
 
-      <form action="/__turbo/redirect" method="post" data-turbo-frame="frame" class="frame">
+      <form action="/__turbo/redirect" method="post" data-boost-frame="frame" class="frame">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/frame.html">
         <button type="submit">Submit</button>
       </form>
     </div>
-    <turbo-frame id="frame">
+    <boost-frame id="frame">
       <h2>Frame: Form</h2>
       <form action="/__turbo/redirect" method="post" class="redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/form.html">
         <input type="submit">
       </form>
-      <form action="/__turbo/redirect" method="post" class="redirect" data-turbo-frame="_top">
+      <form action="/__turbo/redirect" method="post" class="redirect" data-boost-frame="_top">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/form.html">
-        <button>#frame form[data-turbo-frame=_top]</button>
+        <button>#frame form[data-boost-frame=_top]</button>
       </form>
       <form action="/__turbo/messages" method="post" class="created">
         <input type="hidden" name="content" value="Hello!">
@@ -275,29 +275,29 @@
         <input type="hidden" name="status" value="500">
         <input type="submit">
       </form>
-      <form action="/__turbo/redirect" method="post" data-turbo="false">
+      <form action="/__turbo/redirect" method="post" data-boost="false">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
         <input type="submit">
       </form>
       <form action="/__turbo/redirect" method="post">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <input type="submit" data-turbo="false">
+        <input type="submit" data-boost="false">
       </form>
       <form action="/__turbo/messages" method="post" class="stream">
         <input type="hidden" name="type" value="stream">
         <input type="hidden" name="content" value="Hello!">
         <input type="submit">
       </form>
-      <a href="/src/tests/fixtures/frames/frame.html" data-turbo-method="get" id="link-method-inside-frame">Method link inside frame</a><br />
-      <a href="/src/tests/fixtures/frames/hello.html" data-turbo-method="get" data-turbo-frame="_top" id="link-method-inside-frame-target-top">Break-out of frame with method link inside frame</a><br />
-      <a href="/src/tests/fixtures/frames/hello.html" data-turbo-method="get" data-turbo-frame="hello" id="link-method-inside-frame-with-target">Method link inside frame targeting another frame</a><br />
-      <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-method="post" id="stream-link-method-inside-frame">Stream link inside frame</a>
-      <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-method="get" data-turbo-stream id="stream-link-get-method-inside-frame">Stream link GET inside frame</a>
-      <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-stream id="stream-link-inside-frame">Stream link (no method) inside frame</a>
-      <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-method="post" data-turbo-confirm="Are you sure?" id="link-method-inside-frame-with-confirmation"data-turbo-confirm="Are you sure?">Stream link inside frame with confirmation</a>
+      <a href="/src/tests/fixtures/frames/frame.html" data-boost-method="get" id="link-method-inside-frame">Method link inside frame</a><br />
+      <a href="/src/tests/fixtures/frames/hello.html" data-boost-method="get" data-boost-frame="_top" id="link-method-inside-frame-target-top">Break-out of frame with method link inside frame</a><br />
+      <a href="/src/tests/fixtures/frames/hello.html" data-boost-method="get" data-boost-frame="hello" id="link-method-inside-frame-with-target">Method link inside frame targeting another frame</a><br />
+      <a href="/__turbo/messages?content=Link!&type=stream" data-boost-method="post" id="stream-link-method-inside-frame">Stream link inside frame</a>
+      <a href="/__turbo/messages?content=Link!&type=stream" data-boost-method="get" data-boost-stream id="stream-link-get-method-inside-frame">Stream link GET inside frame</a>
+      <a href="/__turbo/messages?content=Link!&type=stream" data-boost-stream id="stream-link-inside-frame">Stream link (no method) inside frame</a>
+      <a href="/__turbo/messages?content=Link!&type=stream" data-boost-method="post" data-boost-confirm="Are you sure?" id="link-method-inside-frame-with-confirmation"data-boost-confirm="Are you sure?">Stream link inside frame with confirmation</a>
       <form>
-        <a href="/src/tests/fixtures/frames/frame.html" data-turbo-method="get" id="method-link-within-form-inside-frame">Method link within form inside frame</a><br />
-        <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-method="post" id="stream-link-method-within-form-inside-frame">Stream link within form inside frame</a>
+        <a href="/src/tests/fixtures/frames/frame.html" data-boost-method="get" id="method-link-within-form-inside-frame">Method link within form inside frame</a><br />
+        <a href="/__turbo/messages?content=Link!&type=stream" data-boost-method="post" id="stream-link-method-within-form-inside-frame">Stream link within form inside frame</a>
       </form>
       <form action="/__turbo/messages/1" method="put" class="stream put">
         <input type="hidden" name="type" value="stream">
@@ -305,65 +305,65 @@
         <input type="submit">
       </form>
       <form action="/src/tests/fixtures/one.html" method="get">
-        <button type="submit" data-turbo-frame="_top">Break-out of Frame with GET</button>
+        <button type="submit" data-boost-frame="_top">Break-out of Frame with GET</button>
       </form>
       <form action="/__turbo/redirect" method="post">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <button type="submit" data-turbo-frame="_top">Break-out of Frame with POST</button>
+        <button type="submit" data-boost-frame="_top">Break-out of Frame with POST</button>
       </form>
-      <form action="/src/tests/fixtures/frames/hello.html" method="get" data-turbo-frame="hello">
+      <form action="/src/tests/fixtures/frames/hello.html" method="get" data-boost-frame="hello">
         <button type="submit">Navigate other Frame with GET</button>
       </form>
       <form action="/src/tests/fixtures/frames/hello.html" method="get">
-        <button type="submit" data-turbo-frame="hello">Navigate other Frame with GET</button>
+        <button type="submit" data-boost-frame="hello">Navigate other Frame with GET</button>
       </form>
-      <form action="/__turbo/redirect" method="post" data-turbo-frame="hello">
+      <form action="/__turbo/redirect" method="post" data-boost-frame="hello">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/hello.html">
         <button type="submit">Navigate other Frame with POST</button>
       </form>
       <form action="/__turbo/redirect" method="post">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/hello.html">
-        <button type="submit" data-turbo-frame="hello">Navigate other Frame with POST</button>
+        <button type="submit" data-boost-frame="hello">Navigate other Frame with POST</button>
       </form>
       <div id="messages">
       </div>
-      <form id="form-with-external-inputs" action="/src/tests/fixtures/frames/hello.html" data-turbo-action="replace" data-turbo-frame="hello"></form>
+      <form id="form-with-external-inputs" action="/src/tests/fixtures/frames/hello.html" data-boost-action="replace" data-boost-frame="hello"></form>
       <select id="external-select" form="form-with-external-inputs" name="greeting">
         <option selected>Hello from a replace Visit</option>
       </select>
-      <form id="form-with-buttons-triggered-by-js" action="/__turbo/redirect" data-turbo-frame="_top" method="post">
+      <form id="form-with-buttons-triggered-by-js" action="/__turbo/redirect" data-boost-frame="_top" method="post">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <button type="submit" formaction="/src/tests/fixtures/frames/hello.html" formmethod="get" id="button-triggered-by-js" data-turbo-action="replace" data-turbo-frame="hello">Navigate other Frame with GET</button>
+        <button type="submit" formaction="/src/tests/fixtures/frames/hello.html" formmethod="get" id="button-triggered-by-js" data-boost-action="replace" data-boost-frame="hello">Navigate other Frame with GET</button>
         <button type="button" onclick="this.form.requestSubmit(document.getElementById('button-triggered-by-js'))" id="request-submit-trigger">Trigger Navigate other Frame with GET</button>
       </form>
-    </turbo-frame>
-    <a href="/src/tests/fixtures/frames/hello.html" data-turbo-method="get" id="link-method-outside-frame">Method link outside frame</a><br />
-    <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-method="post" id="stream-link-method-outside-frame">Stream link outside frame</a>
+    </boost-frame>
+    <a href="/src/tests/fixtures/frames/hello.html" data-boost-method="get" id="link-method-outside-frame">Method link outside frame</a><br />
+    <a href="/__turbo/messages?content=Link!&type=stream" data-boost-method="post" id="stream-link-method-outside-frame">Stream link outside frame</a>
     <form>
-      <a href="/src/tests/fixtures/frames/hello.html" data-turbo-method="get" id="link-method-within-form-outside-frame">Method link within form outside frame</a><br />
-      <a href="/__turbo/messages?content=Link!&type=stream" data-turbo-method="post" id="stream-link-method-within-form-outside-frame">Stream link within form outside frame</a>
+      <a href="/src/tests/fixtures/frames/hello.html" data-boost-method="get" id="link-method-within-form-outside-frame">Method link within form outside frame</a><br />
+      <a href="/__turbo/messages?content=Link!&type=stream" data-boost-method="post" id="stream-link-method-within-form-outside-frame">Stream link within form outside frame</a>
     </form>
     <hr>
     <form method="post" action="https://httpbin.org/post">
       <button id="submit-external">POST to https://httpbin.org/post</button>
     </form>
-     <a href="/__turbo/redirect?path=%2Fsrc%2Ftests%2Ffixtures%2Fframes%2Fhello.html" data-turbo-method="post" data-turbo-frame="hello" id="turbo-method-post-to-targeted-frame">Turbo method post to targeted frame</a>
-     <a href="/__turbo/redirect?path=%2Fsrc%2Ftests%2Ffixtures%2Fframes%2Fhello.html" data-turbo-method="post" data-turbo-frame="hello" target="" id="turbo-method-post-empty-target">Turbo method post with empty target</a>
-     <a href="/__turbo/redirect?path=%2Fsrc%2Ftests%2Ffixtures%2Fframes%2Fhello.html" data-turbo-method="post" data-turbo-frame="hello" target id="turbo-method-post-bare-target">Turbo method post with bare target</a>
-    <turbo-frame id="hello"></turbo-frame>
+     <a href="/__turbo/redirect?path=%2Fsrc%2Ftests%2Ffixtures%2Fframes%2Fhello.html" data-boost-method="post" data-boost-frame="hello" id="boost-method-post-to-targeted-frame">Boost method post to targeted frame</a>
+     <a href="/__turbo/redirect?path=%2Fsrc%2Ftests%2Ffixtures%2Fframes%2Fhello.html" data-boost-method="post" data-boost-frame="hello" target="" id="boost-method-post-empty-target">Boost method post with empty target</a>
+     <a href="/__turbo/redirect?path=%2Fsrc%2Ftests%2Ffixtures%2Fframes%2Fhello.html" data-boost-method="post" data-boost-frame="hello" target id="boost-method-post-bare-target">Boost method post with bare target</a>
+    <boost-frame id="hello"></boost-frame>
     <hr>
 
-    <turbo-frame id="ignored">
+    <boost-frame id="ignored">
       <form method="post" action="https://httpbin.org/post">
         <button id="submit-external-within-ignored">POST to https://httpbin.org/post within #hello</button>
       </form>
-    </turbo-frame>
+    </boost-frame>
 
     <form method="post" action="https://httpbin.org/post">
       <button id="submit-external">POST to https://httpbin.org/post</button>
     </form>
 
-    <form method="post" action="https://httpbin.org/post" data-turbo-frame="ignored">
+    <form method="post" action="https://httpbin.org/post" data-boost-frame="ignored">
       <button id="submit-external-target-ignored">POST to https://httpbin.org/post targeting #hello</button>
     </form>
     <iframe name="iframe"></iframe>

@@ -14,7 +14,7 @@ export interface HistoryDelegate {
 
 type HistoryMethod = (this: typeof history, state: unknown, title: string, url?: string | null | undefined) => void
 
-type TurboHistoryState = { restorationIdentifier: string; restorationIndex: number }
+type BoostHistoryState = { restorationIdentifier: string; restorationIndex: number }
 
 export type RestorationData = { scrollPosition?: Position }
 
@@ -39,7 +39,7 @@ export class History {
   start() {
     if (!this.started) {
       addEventListener("popstate", this.onPopState, false)
-      this.currentIndex = history.state?.turbo?.restorationIndex || 0
+      this.currentIndex = history.state?.boost?.restorationIndex || 0
       this.started = true
       this.replace(new URL(window.location.href))
     }
@@ -63,7 +63,7 @@ export class History {
   update(method: HistoryMethod, location: URL, restorationIdentifier = uuid()) {
     if (method === history.pushState) ++this.currentIndex
 
-    const state = { turbo: { restorationIdentifier, restorationIndex: this.currentIndex } }
+    const state = { boost: { restorationIdentifier, restorationIndex: this.currentIndex } }
     method.call(history, state, "", location.href)
     this.location = location
     this.restorationIdentifier = restorationIdentifier
@@ -103,11 +103,11 @@ export class History {
   // Event handlers
 
   onPopState = (event: PopStateEvent) => {
-    const { turbo }: { turbo?: TurboHistoryState } = event.state || {}
+    const { boost }: { boost?: BoostHistoryState } = event.state || {}
     this.location = new URL(window.location.href)
 
-    if (turbo) {
-      const { restorationIdentifier, restorationIndex } = turbo
+    if (boost) {
+      const { restorationIdentifier, restorationIndex } = boost
       this.restorationIdentifier = restorationIdentifier
       const direction = restorationIndex > this.currentIndex ? "forward" : "back"
       this.delegate.historyPoppedToLocationWithRestorationIdentifierAndDirection(this.location, restorationIdentifier, direction)

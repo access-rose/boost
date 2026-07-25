@@ -2,7 +2,7 @@ import { activateScriptElement, createDocumentFragment } from "../../util"
 import type { StreamElement } from "../../elements/stream_element"
 
 export class StreamMessage {
-  static contentType = "text/vnd.turbo-stream.html"
+  static contentType = "text/vnd.boost-stream.html"
 
   declare readonly fragment: DocumentFragment
 
@@ -20,7 +20,7 @@ export class StreamMessage {
 }
 
 function importStreamElements(fragment: DocumentFragment) {
-  for (const element of fragment.querySelectorAll<StreamElement>("turbo-stream")) {
+  for (const element of fragment.querySelectorAll<StreamElement>("boost-stream")) {
     const streamElement = document.importNode(element, true)
 
     for (const inertScriptElement of streamElement.templateElement.content.querySelectorAll("script")) {

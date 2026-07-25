@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Turbo</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <title>Boost</title>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
     <script type="importmap" nonce="123">
-      { "imports": { "turbo": "/dist/turbo.es2017-umd.js?123"} }
+      { "imports": { "turbo": "/dist/boost.es2017-umd.js?123"} }
     </script>
     <script type="module">
       const permanentVideoElementLoaded = new Promise(resolve => {
@@ -41,11 +41,11 @@
       <p><a id="body-noscript-content-link" href="/src/tests/fixtures/body_noscript_with_content.html">Body noscript with content</a></p>
       <p><a id="head-script-link" href="/src/tests/fixtures/head_script.html">Head script</a></p>
       <p><a id="body-script-link" href="/src/tests/fixtures/body_script.html">Body script</a></p>
-      <p><a id="eval-false-script-link" href="/src/tests/fixtures/eval_false_script.html">data-turbo-eval=false script</a></p>
+      <p><a id="eval-false-script-link" href="/src/tests/fixtures/eval_false_script.html">data-boost-eval=false script</a></p>
       <p><a id="nonexistent-link" href="/nonexistent">Nonexistent link</a></p>
       <p><a id="visit-control-reload-link" href="/src/tests/fixtures/visit_control_reload.html">Visit control: reload</a></p>
       <p><a id="permanent-element-link" href="/src/tests/fixtures/permanent_element.html">Permanent element</a></p>
-      <p><a id="permanent-in-frame-element-link" href="/src/tests/fixtures/permanent_element.html" data-turbo-frame="frame">Permanent element in frame</a></p>
+      <p><a id="permanent-in-frame-element-link" href="/src/tests/fixtures/permanent_element.html" data-boost-frame="frame">Permanent element in frame</a></p>
       <p><a id="delayed-link" href="/__turbo/delayed_response">Delayed link</a></p>
       <p><a id="redirect-link" href="/__turbo/redirect">Redirect link</a></p>
       <p><a id="es_locale_link" href="/src/tests/fixtures/es_locale.html">Change html[lang]</a></p>
@@ -69,33 +69,33 @@
         <input type="reset" id="reset-input">
       </form>
     </section>
-    <div id="permanent" data-turbo-permanent>Rendering</div>
+    <div id="permanent" data-boost-permanent>Rendering</div>
 
     <form>
-      <input id="permanent-input" type="text" name="query" placeholder="Permanent input" data-turbo-permanent>
+      <input id="permanent-input" type="text" name="query" placeholder="Permanent input" data-boost-permanent>
     </form>
 
-    <form id="permanent-form" data-turbo-permanent>
+    <form id="permanent-form" data-boost-permanent>
       <input id="permanent-descendant-input" type="text" name="query" placeholder="Permanent descendant input">
     </form>
 
-    <turbo-frame id="frame">
-      <div id="permanent-in-frame" data-turbo-permanent>Rendering</div>
-    </turbo-frame>
+    <boost-frame id="frame">
+      <div id="permanent-in-frame" data-boost-permanent>Rendering</div>
+    </boost-frame>
 
-    <turbo-frame id="hello">
+    <boost-frame id="hello">
       <form action="/__turbo/redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/hello.html">
-        <input id="permanent-input-in-frame" type="text" name="query" placeholder="Permanent input in frame" data-turbo-permanent>
+        <input id="permanent-input-in-frame" type="text" name="query" placeholder="Permanent input in frame" data-boost-permanent>
       </form>
 
-      <form id="permanent-form-in-frame" action="/__turbo/redirect" data-turbo-permanent>
+      <form id="permanent-form-in-frame" action="/__turbo/redirect" data-boost-permanent>
         <input type="hidden" name="path" value="/src/tests/fixtures/frames/hello.html">
-        <input id="permanent-descendant-input-in-frame" type="text" name="query" placeholder="Permanent descendant input in frame" data-turbo-permanent>
+        <input id="permanent-descendant-input-in-frame" type="text" name="query" placeholder="Permanent descendant input in frame" data-boost-permanent>
       </form>
-    </turbo-frame>
+    </boost-frame>
 
-    <video id="permanent-video" data-turbo-permanent>
+    <video id="permanent-video" data-boost-permanent>
       <source src="/src/tests/fixtures/video.webm" type="video/webm">
       <source src="/src/tests/fixtures/video.mp4" type="video/mp4">
     </video>

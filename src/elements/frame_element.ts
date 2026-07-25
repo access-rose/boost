@@ -27,9 +27,9 @@ export interface FrameElementDelegate extends LinkInterceptorDelegate, FormSubmi
  * Contains a fragment of HTML which is updated based on navigation within
  * it (e.g. via links or form submissions).
  *
- * @customElement turbo-frame
+ * @customElement boost-frame
  * @example
- *   <turbo-frame id="messages">
+ *   <boost-frame id="messages">
  *     <a href="/messages/expanded">
  *       Show all expanded messages in this frame.
  *     </a>
@@ -37,7 +37,7 @@ export interface FrameElementDelegate extends LinkInterceptorDelegate, FormSubmi
  *     <form action="/messages">
  *       Show response from this form within this frame.
  *     </form>
- *   </turbo-frame>
+ *   </boost-frame>
  */
 export class FrameElement extends HTMLElement {
   static delegateConstructor: new (element: FrameElement) => FrameElementDelegate

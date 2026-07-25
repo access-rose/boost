@@ -1,12 +1,12 @@
 import { StreamActions } from "../core/streams/stream_actions"
 import { nextRepaint } from "../util"
 
-export type TurboBeforeStreamRenderEvent = CustomEvent<{
+export type BoostBeforeStreamRenderEvent = CustomEvent<{
   newStream: StreamElement
   render: (newElement: StreamElement) => Promise<void>
 }>
 
-// <turbo-stream action=replace target=id><template>...
+// <boost-stream action=replace target=id><template>...
 
 /**
  * Renders updates to the page from a stream of messages.
@@ -22,13 +22,13 @@ export type TurboBeforeStreamRenderEvent = CustomEvent<{
  * - `replace` - replaces the outer HTML of the target
  * - `update` - replaces the inner HTML of the target
  *
- * @customElement turbo-stream
+ * @customElement boost-stream
  * @example
- *   <turbo-stream action="append" target="dom_id">
+ *   <boost-stream action="append" target="dom_id">
  *     <template>
  *       Content to append to target designated with the dom_id.
  *     </template>
- *   </turbo-stream>
+ *   </boost-stream>
  */
 export class StreamElement extends HTMLElement {
   declare renderPromise?: Promise<void>
@@ -181,11 +181,11 @@ export class StreamElement extends HTMLElement {
   }
 
   get description() {
-    return (this.outerHTML.match(/<[^>]+>/) ?? [])[0] ?? "<turbo-stream>"
+    return (this.outerHTML.match(/<[^>]+>/) ?? [])[0] ?? "<boost-stream>"
   }
 
-  get beforeRenderEvent(): TurboBeforeStreamRenderEvent {
-    return new CustomEvent("turbo:before-stream-render", {
+  get beforeRenderEvent(): BoostBeforeStreamRenderEvent {
+    return new CustomEvent("boost:before-stream-render", {
       bubbles: true,
       cancelable: true,
       detail: { newStream: this, render: StreamElement.renderElement }

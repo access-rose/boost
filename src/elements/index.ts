@@ -9,14 +9,14 @@ export * from "./frame_element"
 export * from "./stream_element"
 export * from "./stream_source_element"
 
-if (customElements.get("turbo-frame") === undefined) {
-  customElements.define("turbo-frame", FrameElement)
+if (customElements.get("boost-frame") === undefined) {
+  customElements.define("boost-frame", FrameElement)
 }
 
-if (customElements.get("turbo-stream") === undefined) {
-  customElements.define("turbo-stream", StreamElement)
+if (customElements.get("boost-stream") === undefined) {
+  customElements.define("boost-stream", StreamElement)
 }
 
-if (customElements.get("turbo-stream-source") === undefined) {
-  customElements.define("turbo-stream-source", StreamSourceElement)
+if (customElements.get("boost-stream-source") === undefined) {
+  customElements.define("boost-stream-source", StreamSourceElement)
 }

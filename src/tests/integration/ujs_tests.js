@@ -5,24 +5,24 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/src/tests/fixtures/ujs.html")
 })
 
-test("allows UJS to intercept and cancel Turbo requests for anchors inside a turbo-frame", async ({ page }) => {
+test("allows UJS to intercept and cancel Boost requests for anchors inside a boost-frame", async ({ page }) => {
   await assertRequestLimit(page, 1, async () => {
     await expect(page.locator("#frame h2")).toHaveText("Frames: #frame")
 
     await page.click("#frame a[data-remote=true]")
 
     await expect(page.locator("#frame")).toHaveText("Content from UJS response")
-    expect(await noNextEventOnTarget(page, "frame", "turbo:frame-load")).toBeTruthy()
+    expect(await noNextEventOnTarget(page, "frame", "boost:frame-load")).toBeTruthy()
   })
 })
 
-test("handles [data-remote=true] forms within a turbo-frame", async ({ page }) => {
+test("handles [data-remote=true] forms within a boost-frame", async ({ page }) => {
   await assertRequestLimit(page, 1, async () => {
     await expect(page.locator("#frame h2")).toHaveText("Frames: #frame")
 
     await page.click("#frame form[data-remote=true] button")
 
-    expect(await nextEventOnTarget(page, "frame", "turbo:frame-load")).toBeTruthy()
+    expect(await nextEventOnTarget(page, "frame", "boost:frame-load")).toBeTruthy()
     await expect(page.locator("#frame h2"), "navigates the target frame").toHaveText("Frame: Loaded")
   })
 })

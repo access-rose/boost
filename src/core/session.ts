@@ -39,14 +39,14 @@ import type { StreamObserverDelegate } from "../observers/stream_observer"
 
 export type TimingData = Record<string, unknown>
 
-export type TurboBeforeRenderEvent = CustomEvent<{ newBody: HTMLElement } & PageViewRenderOptions>
-export type TurboBeforeVisitEvent = CustomEvent<{ url: string }>
-export type TurboClickEvent = CustomEvent<{ url: string; originalEvent: MouseEvent }>
-export type TurboFrameLoadEvent = CustomEvent
-export type TurboFrameRenderEvent = CustomEvent<{ fetchResponse: FetchResponse }>
-export type TurboLoadEvent = CustomEvent<{ url: string; timing: TimingData }>
-export type TurboRenderEvent = CustomEvent<{ renderMethod: string }>
-export type TurboVisitEvent = CustomEvent<{ url: string; action: Action }>
+export type BoostBeforeRenderEvent = CustomEvent<{ newBody: HTMLElement } & PageViewRenderOptions>
+export type BoostBeforeVisitEvent = CustomEvent<{ url: string }>
+export type BoostClickEvent = CustomEvent<{ url: string; originalEvent: MouseEvent }>
+export type BoostFrameLoadEvent = CustomEvent
+export type BoostFrameRenderEvent = CustomEvent<{ fetchResponse: FetchResponse }>
+export type BoostLoadEvent = CustomEvent<{ url: string; timing: TimingData }>
+export type BoostRenderEvent = CustomEvent<{ renderMethod: string }>
+export type BoostVisitEvent = CustomEvent<{ url: string; action: Action }>
 
 export class Session
   implements
@@ -163,7 +163,7 @@ export class Session
 
   setProgressBarDelay(delay: number) {
     console.warn(
-      "Please replace `session.setProgressBarDelay(delay)` with `session.progressBarDelay = delay`. The function is deprecated and will be removed in a future version of Turbo.`"
+      "Please replace `session.setProgressBarDelay(delay)` with `session.progressBarDelay = delay`. The function is deprecated and will be removed in a future version of Boost.`"
     )
 
     this.progressBarDelay = delay
@@ -221,7 +221,7 @@ export class Session
       })
     } else {
       this.adapter.pageInvalidated({
-        reason: "turbo_disabled"
+        reason: "boost_disabled"
       })
     }
   }
@@ -257,7 +257,7 @@ export class Session
 
   followedLinkToLocation(link: Element, location: URL) {
     const action = this.getActionForLink(link)
-    const acceptsStreamResponse = link.hasAttribute("data-turbo-stream")
+    const acceptsStreamResponse = link.hasAttribute("data-boost-stream")
 
     this.visit(location.href, { action, acceptsStreamResponse })
   }
@@ -377,7 +377,7 @@ export class Session
   }
 
   notifyApplicationAfterClickingLinkToLocation(link: Element, location: URL, event: MouseEvent) {
-    return dispatch("turbo:click", {
+    return dispatch("boost:click", {
       target: link,
       detail: { url: location.href, originalEvent: event },
       cancelable: true
@@ -385,39 +385,39 @@ export class Session
   }
 
   notifyApplicationBeforeVisitingLocation(location: URL) {
-    return dispatch("turbo:before-visit", {
+    return dispatch("boost:before-visit", {
       detail: { url: location.href },
       cancelable: true
     })
   }
 
   notifyApplicationAfterVisitingLocation(location: URL, action: Action) {
-    return dispatch("turbo:visit", { detail: { url: location.href, action } })
+    return dispatch("boost:visit", { detail: { url: location.href, action } })
   }
 
   notifyApplicationBeforeRender(newBody: HTMLElement, options: PageViewRenderOptions) {
-    return dispatch("turbo:before-render", {
+    return dispatch("boost:before-render", {
       detail: { newBody, ...options },
       cancelable: true
     })
   }
 
   notifyApplicationAfterRender(renderMethod: string) {
-    return dispatch("turbo:render", { detail: { renderMethod } })
+    return dispatch("boost:render", { detail: { renderMethod } })
   }
 
   notifyApplicationAfterPageLoad(timing: TimingData = {}) {
-    return dispatch("turbo:load", {
+    return dispatch("boost:load", {
       detail: { url: this.location.href, timing }
     })
   }
 
   notifyApplicationAfterFrameLoad(frame: FrameElement) {
-    return dispatch("turbo:frame-load", { target: frame })
+    return dispatch("boost:frame-load", { target: frame })
   }
 
   notifyApplicationAfterFrameRender(fetchResponse: FetchResponse, frame: FrameElement) {
-    return dispatch("turbo:frame-render", {
+    return dispatch("boost:frame-render", {
       detail: { fetchResponse },
       target: frame,
       cancelable: true
@@ -433,7 +433,7 @@ export class Session
       const submitterIsNavigatable = submitter ? this.elementIsNavigatable(submitter) : true
 
       if (config.forms.mode == "optin") {
-        return submitterIsNavigatable && form.closest('[data-turbo="true"]') != null
+        return submitterIsNavigatable && form.closest('[data-boost="true"]') != null
       } else {
         return submitterIsNavigatable && this.elementIsNavigatable(form)
       }
@@ -441,21 +441,21 @@ export class Session
   }
 
   elementIsNavigatable(element: Element) {
-    const container = findClosestRecursively(element, "[data-turbo]")
-    const withinFrame = findClosestRecursively(element, "turbo-frame")
+    const container = findClosestRecursively(element, "[data-boost]")
+    const withinFrame = findClosestRecursively(element, "boost-frame")
 
     // Check if Drive is enabled on the session or we're within a Frame.
     if (config.drive.enabled || withinFrame) {
-      // Element is navigatable by default, unless `data-turbo="false"`.
+      // Element is navigatable by default, unless `data-boost="false"`.
       if (container) {
-        return container.getAttribute("data-turbo") != "false"
+        return container.getAttribute("data-boost") != "false"
       } else {
         return true
       }
     } else {
-      // Element isn't navigatable by default, unless `data-turbo="true"`.
+      // Element isn't navigatable by default, unless `data-boost="true"`.
       if (container) {
-        return container.getAttribute("data-turbo") == "true"
+        return container.getAttribute("data-boost") == "true"
       } else {
         return false
       }
@@ -473,7 +473,7 @@ export class Session
   }
 }
 
-// Older versions of the Turbo Native adapters referenced the
+// Older versions of the Boost Native adapters referenced the
 // `Location#absoluteURL` property in their implementations of
 // the `Adapter#visitProposedToLocation()` and `#visitStarted()`
 // methods. The Location class has since been removed in favor

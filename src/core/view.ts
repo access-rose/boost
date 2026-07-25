@@ -124,11 +124,11 @@ export abstract class View<
   }
 
   markVisitDirection(direction: string) {
-    this.element.setAttribute("data-turbo-visit-direction", direction)
+    this.element.setAttribute("data-boost-visit-direction", direction)
   }
 
   unmarkVisitDirection() {
-    this.element.removeAttribute("data-turbo-visit-direction")
+    this.element.removeAttribute("data-boost-visit-direction")
   }
 
   async renderSnapshot(renderer: R) {

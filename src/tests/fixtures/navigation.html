@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html id="html" data-skip-event-details="turbo:submit-start turbo:submit-end">
+<html id="html" data-skip-event-details="boost:submit-start boost:submit-end">
   <head>
     <meta charset="utf-8">
     <meta name="csp-nonce" content="123">
-    <title>Turbo</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <title>Boost</title>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
     <meta name="referrer" content="origin-when-cross-origin">
   </head>
   <body>
     <a href="#main">Skip Link</a>
 
-    <a href="#main" id="refresh-link" data-turbo-action="replace">Refresh Link</a>
+    <a href="#main" id="refresh-link" data-boost-action="replace">Refresh Link</a>
 
     <a href="#ignored-link" id="ignored-link">Skipped Content</a>
 
@@ -20,24 +20,24 @@
       <p><a id="same-origin-unannotated-link" href="/src/tests/fixtures/one.html">Same-origin unannotated link</a></p>
       <p><a id="same-origin-unannotated-link-search-params" href="/src/tests/fixtures/one.html?key=value">Same-origin unannotated link ?key=value</a></p>
       <p><form id="same-origin-unannotated-form" method="get" action="/src/tests/fixtures/one.html"><button>Same-origin unannotated form</button></form></p>
-      <p><a id="same-origin-replace-link" href="/src/tests/fixtures/one.html" data-turbo-action="replace">Same-origin data-turbo-action=replace link</a></p>
-      <p><form id="same-origin-replace-form-get" action="/src/tests/fixtures/one.html" data-turbo-action="replace"><button>Same-origin data-turbo-action=replace form</button></form></p>
-      <p><form id="same-origin-replace-form-submitter-get" action="/src/tests/fixtures/one.html"><button data-turbo-action="replace">Same-origin data-turbo-action=replace form</button></form></p>
-      <form id="same-origin-replace-form-post" method="post" action="/__turbo/redirect" data-turbo-action="replace">
+      <p><a id="same-origin-replace-link" href="/src/tests/fixtures/one.html" data-boost-action="replace">Same-origin data-boost-action=replace link</a></p>
+      <p><form id="same-origin-replace-form-get" action="/src/tests/fixtures/one.html" data-boost-action="replace"><button>Same-origin data-boost-action=replace form</button></form></p>
+      <p><form id="same-origin-replace-form-submitter-get" action="/src/tests/fixtures/one.html"><button data-boost-action="replace">Same-origin data-boost-action=replace form</button></form></p>
+      <form id="same-origin-replace-form-post" method="post" action="/__turbo/redirect" data-boost-action="replace">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <button>Same-origin form[method="post"][data-turbo-action="replace"]</button>
+        <button>Same-origin form[method="post"][data-boost-action="replace"]</button>
       </form>
       <form id="same-origin-replace-form-submitter-post" method="post" action="/__turbo/redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
-        <button data-turbo-action="replace">Same-origin form[method="post"] button[data-turbo-action="replace"]</button>
+        <button data-boost-action="replace">Same-origin form[method="post"] button[data-boost-action="replace"]</button>
       </form>
       <form id="form-post" method="post" action="/__turbo/redirect">
         <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
         <input type="submit" id="form-post-submit" value="Submit"/>
       </form>
-      <p><a id="same-origin-false-link" href="/src/tests/fixtures/one.html" data-turbo="false">Same-origin data-turbo=false link</a></p>
-      <p data-turbo="false"><a id="same-origin-unannotated-link-inside-false-container" href="/src/tests/fixtures/one.html">Same-origin unannotated link inside data-turbo=false container</a></p>
-      <p data-turbo="false"><a id="same-origin-true-link-inside-false-container" href="/src/tests/fixtures/one.html" data-turbo="true">Same-origin data-turbo=true link inside data-turbo=false container</a></p>
+      <p><a id="same-origin-false-link" href="/src/tests/fixtures/one.html" data-boost="false">Same-origin data-boost=false link</a></p>
+      <p data-boost="false"><a id="same-origin-unannotated-link-inside-false-container" href="/src/tests/fixtures/one.html">Same-origin unannotated link inside data-boost=false container</a></p>
+      <p data-boost="false"><a id="same-origin-true-link-inside-false-container" href="/src/tests/fixtures/one.html" data-boost="true">Same-origin data-boost=true link inside data-boost=false container</a></p>
       <p><a id="same-origin-anchored-link" href="/src/tests/fixtures/one.html#element-id">Same-origin anchored link</a></p>
       <p><a id="same-origin-anchored-link-named" href="/src/tests/fixtures/one.html#named-anchor">Same-origin link to named anchor</a></p>
       <p><a id="cross-origin-unannotated-link" href="about:blank">Cross-origin unannotated link</a></p>
@@ -49,9 +49,9 @@
       <svg width="600" height="100" viewbox="-300 -50 600 100"><text><a id="same-origin-link-inside-svg-element" href="/src/tests/fixtures/one.html">Same-origin link inside SVG element</a></text></svg>
       <svg width="600" height="100" viewbox="-300 -50 600 100"><text><a id="cross-origin-link-inside-svg-element" href="about:blank">Cross-origin link inside SVG element</a></text></svg>
       <svg width="600" height="100" viewbox="-300 -50 600 100"><text><a id="same-origin-anchored-svg-link" href="#main">SVG link with hash-only href</a></text></svg>
-      <p><a id="same-origin-get-link-form" href="/src/tests/fixtures/navigation.html?a=one&b=two" data-turbo-method="get">Same-origin data-turbo-method=get link</a></p>
-      <p><a id="same-origin-replace-post-link" href="/__turbo/redirect" data-turbo-method="post" data-turbo-action="replace">Same-origin data-turbo-action=replace link with post method</a></p>
-      <p><a id="link-to-disabled-frame" href="/src/tests/fixtures/frames/hello.html" data-turbo-frame="hello">Disabled turbo-frame</a></p>
+      <p><a id="same-origin-get-link-form" href="/src/tests/fixtures/navigation.html?a=one&b=two" data-boost-method="get">Same-origin data-boost-method=get link</a></p>
+      <p><a id="same-origin-replace-post-link" href="/__turbo/redirect" data-boost-method="post" data-boost-action="replace">Same-origin data-boost-action=replace link with post method</a></p>
+      <p><a id="link-to-disabled-frame" href="/src/tests/fixtures/frames/hello.html" data-boost-frame="hello">Disabled boost-frame</a></p>
       <p><a id="autofocus-link" href="/src/tests/fixtures/autofocus.html">autofocus.html link</a></p>
       <p><a id="redirection-link" href="/__turbo/redirect?path=/src/tests/fixtures/one.html">Redirection link</a></p>
       <p><a id="headers-link" href="/__turbo/headers">Headers link</a></p>
@@ -61,7 +61,7 @@
           <custom-button id="shadow-dom-drive-enabled"></custom-button>
         </a>
       </p>
-      <p data-turbo="false">
+      <p data-boost="false">
         <a href="/src/tests/fixtures/one.html">
           <custom-button id="shadow-dom-drive-disabled"></custom-button>
         </a>
@@ -71,20 +71,20 @@
           <span id="element-in-slot">Link in slot</span>
         </custom-link-element>
       </p>
-      <p data-turbo="false">
+      <p data-boost="false">
         <custom-link-element link="/src/tests/fixtures/one.html">
           <span id="element-in-slot-disabled">Link in slot (disabled)</span>
         </custom-link-element>
       </p>
       <p>
-        <turbo-toggle turbo="false">
+        <boost-toggle turbo="false">
           <custom-link-element link="/src/tests/fixtures/one.html">
             <span id="element-in-nested-slot-disabled">Link in slot (disabled)</span>
           </custom-link-element>
-        </turbo-toggle>
+        </boost-toggle>
       </p>
       <p>
-        <form action="/__turbo/redirect" method="post" class="redirect" data-turbo-frame="_top">
+        <form action="/__turbo/redirect" method="post" class="redirect" data-boost-frame="_top">
           <input type="hidden" name="path" value="/src/tests/fixtures/one.html">
           <button id="redirect-submit">Redirect to the another location</button>
         </form>
@@ -126,7 +126,7 @@
       </p>
     </section>
 
-    <turbo-frame id="hello" disabled></turbo-frame>
+    <boost-frame id="hello" disabled></boost-frame>
 
     <iframe name="iframe"></iframe>
     <iframe name=""></iframe>

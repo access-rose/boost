@@ -18,7 +18,7 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
   get reloadReason() {
     if (!this.newSnapshot.isVisitable) {
       return {
-        reason: "turbo_visit_control_is_reload"
+        reason: "boost_visit_control_is_reload"
       }
     }
 
@@ -117,7 +117,7 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
       const activatedElement = activateScriptElement(element)
       document.head.appendChild(activatedElement)
 
-      if (activatedElement.src && activatedElement.getAttribute("data-turbo-eval") !== "false") {
+      if (activatedElement.src && activatedElement.getAttribute("data-boost-eval") !== "false") {
         loadingElements.push(waitForLoad(activatedElement))
       }
     }
@@ -209,7 +209,7 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
 
   get unusedDynamicStylesheetElements() {
     return this.oldHeadStylesheetElements.filter((element) => {
-      return element.getAttribute("data-turbo-track") === "dynamic"
+      return element.getAttribute("data-boost-track") === "dynamic"
     })
   }
 

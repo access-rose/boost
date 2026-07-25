@@ -22,7 +22,7 @@ test("don't refresh the page on self-originated request ids", async ({ page }) =
   await expect(content).toHaveText(/Hello/)
 
   await content.evaluate((content) => content.innerHTML = "")
-  await page.evaluate(() => { window.Turbo.session.recentRequests.add("123") })
+  await page.evaluate(() => { window.Boost.session.recentRequests.add("123") })
 
   await page.locator("#request-id").evaluate((input) => input.value = "123")
   await page.click("#refresh button")
@@ -31,7 +31,7 @@ test("don't refresh the page on self-originated request ids", async ({ page }) =
   await expect(content).not.toHaveText(/Hello/)
 })
 
-test("fetch injects a Turbo-Request-Id with a UID generated automatically", async ({ page }) => {
+test("fetch injects a Boost-Request-Id with a UID generated automatically", async ({ page }) => {
   const response1 = await fetchRequestId(page)
   const response2 = await fetchRequestId(page)
 
@@ -50,7 +50,7 @@ test("debounce stream page refreshes", async ({ page }) => {
   await nextPageRefresh(page)
 
   const eventLogs = await readEventLogs(page)
-  const requestLogs = eventLogs.filter(([name]) => name == "turbo:visit")
+  const requestLogs = eventLogs.filter(([name]) => name == "boost:visit")
   expect(requestLogs.length).toEqual(2)
 })
 
@@ -65,11 +65,11 @@ test("debounced refresh of stale URL does not hijack new location navigated to",
 
 async function fetchRequestId(page) {
   return await page.evaluate(async () => {
-    const response = await window.Turbo.fetch("/__turbo/request_id_header")
+    const response = await window.Boost.fetch("/__turbo/request_id_header")
     return response.text()
   })
 }
 
 async function setLongerPageRefreshDebouncePeriod(page, period = 500) {
-  return page.evaluate((period) => window.Turbo.session.pageRefreshDebouncePeriod = period, period)
+  return page.evaluate((period) => window.Boost.session.pageRefreshDebouncePeriod = period, period)
 }

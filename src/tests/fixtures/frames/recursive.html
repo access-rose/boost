@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8">
     <title>Frames: Recursive</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
   </head>
   <body>
-    <turbo-frame id="recursive">
-      <turbo-frame id="composer">
+    <boost-frame id="recursive">
+      <boost-frame id="composer">
         <details>
           <summary>Recursive frame</summary>
           <form action="/__turbo/redirect" method="post" class="redirect">
@@ -17,7 +17,7 @@
             <input type="submit">
           </form>
         </details>
-      </turbo-frame>
-    </turbo-frame>
+      </boost-frame>
+    </boost-frame>
   </body>
 </html>

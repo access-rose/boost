@@ -32,51 +32,51 @@ test("navigating a frame with a link targeting the frame autofocuses [autofocus]
   await expect(page.locator("#frames-form-first-autofocus-element")).toBeFocused()
 })
 
-test("navigating a frame with a turbo-frame targeting the frame autofocuses [autofocus]:first-of-type", async ({
+test("navigating a frame with a boost-frame targeting the frame autofocuses [autofocus]:first-of-type", async ({
   page
 }) => {
   await page.click("#drives-frame-target-link")
   await expect(page.locator("#frames-form-first-autofocus-element")).toBeFocused()
 })
 
-test("receiving a Turbo Stream message with an [autofocus] element when the activeElement is the document", async ({ page }) => {
+test("receiving a Boost Stream message with an [autofocus] element when the activeElement is the document", async ({ page }) => {
   // Ensure the [autofocus] element has been processed before blurring
   await expect(page.locator("#first-autofocus-element")).toBeFocused()
 
   await page.evaluate(() => {
     document.activeElement.blur()
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="append" targets="body">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="append" targets="body">
         <template><input id="autofocus-from-stream" autofocus></template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
 
   await expect(page.locator("#autofocus-from-stream")).toBeFocused()
 })
 
-test("autofocus from a Turbo Stream message does not leak a placeholder [id]", async ({ page }) => {
+test("autofocus from a Boost Stream message does not leak a placeholder [id]", async ({ page }) => {
   // Ensure the [autofocus] element has been processed before blurring
   await expect(page.locator("#first-autofocus-element")).toBeFocused()
 
   await page.evaluate(() => {
     document.activeElement.blur()
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="append" targets="body">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="append" targets="body">
         <template><div id="container-from-stream"><input autofocus></div></template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
 
   await expect(page.locator("#container-from-stream input")).toBeFocused()
 })
 
-test("receiving a Turbo Stream message with an [autofocus] element when an element within the document has focus", async ({ page }) => {
+test("receiving a Boost Stream message with an [autofocus] element when an element within the document has focus", async ({ page }) => {
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="append" targets="body">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="append" targets="body">
         <template><input id="autofocus-from-stream" autofocus></template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
   await expect(page.locator("#first-autofocus-element")).toBeFocused()
@@ -95,7 +95,7 @@ test("don't focus on [autofocus] elements on page refreshes with morphing", asyn
 
   await page.locator("#form").evaluate((form) => form.requestSubmit())
 
-  await nextEventNamed(page, "turbo:render", { renderMethod: "morph" })
+  await nextEventNamed(page, "boost:render", { renderMethod: "morph" })
   await nextPageRefresh(page)
 
   await expect(button).toBeFocused()

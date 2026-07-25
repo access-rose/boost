@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await readEventLogs(page)
 })
 
-test("does not emit turbo:load when loaded asynchronously after DOMContentLoaded", async ({ page }) => {
+test("does not emit boost:load when loaded asynchronously after DOMContentLoaded", async ({ page }) => {
   const events = await readEventLogs(page)
 
   expect(events).toEqual([])

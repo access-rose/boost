@@ -96,7 +96,7 @@ function elementType(element: Element) {
 }
 
 function elementIsTracked(element: Element) {
-  return element.getAttribute("data-turbo-track") == "reload"
+  return element.getAttribute("data-boost-track") == "reload"
 }
 
 function elementIsScript(element: Element) {

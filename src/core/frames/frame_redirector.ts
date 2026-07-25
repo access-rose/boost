@@ -47,7 +47,7 @@ export class FrameRedirector implements LinkInterceptorDelegate, FormSubmitObser
 
   willSubmitForm(element: HTMLFormElement, submitter?: SubmitterElement) {
     return (
-      element.closest("turbo-frame") == null &&
+      element.closest("boost-frame") == null &&
       this.#shouldSubmit(element, submitter) &&
       this.#shouldRedirect(element, submitter)
     )
@@ -62,7 +62,7 @@ export class FrameRedirector implements LinkInterceptorDelegate, FormSubmitObser
 
   #shouldSubmit(form: HTMLFormElement, submitter?: SubmitterElement) {
     const action = getAction(form, submitter)
-    const meta = this.element.ownerDocument.querySelector<HTMLMetaElement>(`meta[name="turbo-root"]`)
+    const meta = this.element.ownerDocument.querySelector<HTMLMetaElement>(`meta[name="boost-root"]`)
     const rootLocation = expandURL(meta?.content ?? "/")
 
     return this.#shouldRedirect(form, submitter) && locationIsVisitable(action, rootLocation)
@@ -76,14 +76,14 @@ export class FrameRedirector implements LinkInterceptorDelegate, FormSubmitObser
 
     if (isNavigatable) {
       const frame = this.#findFrameElement(element, submitter)
-      return frame ? frame != element.closest("turbo-frame") : false
+      return frame ? frame != element.closest("boost-frame") : false
     } else {
       return false
     }
   }
 
   #findFrameElement(element: Element, submitter?: SubmitterElement) {
-    const id = submitter?.getAttribute("data-turbo-frame") || element.getAttribute("data-turbo-frame")
+    const id = submitter?.getAttribute("data-boost-frame") || element.getAttribute("data-boost-frame")
     if (id && id != "_top") {
       const frame = this.element.querySelector(`#${id}:not([disabled])`)
       if (frame instanceof FrameElement) {

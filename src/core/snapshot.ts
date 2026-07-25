@@ -57,9 +57,9 @@ export class Snapshot<E extends Element = Element> {
 }
 
 export function getPermanentElementById(node: ParentNode, id: string) {
-  return node.querySelector(`#${id}[data-turbo-permanent]`)
+  return node.querySelector(`#${id}[data-boost-permanent]`)
 }
 
 export function queryPermanentElementsAll(node: ParentNode) {
-  return node.querySelectorAll("[id][data-turbo-permanent]")
+  return node.querySelectorAll("[id][data-boost-permanent]")
 }

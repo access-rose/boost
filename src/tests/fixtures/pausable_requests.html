@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Turbo</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <title>Boost</title>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
     <script type="module">
-      addEventListener('turbo:before-fetch-request', function(event) {
+      addEventListener('boost:before-fetch-request', function(event) {
         event.preventDefault()
         if (confirm('Continue request?')) {
           event.detail.resume()

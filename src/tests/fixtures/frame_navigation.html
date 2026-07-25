@@ -2,40 +2,40 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Turbo</title>
+    <title>Boost</title>
     <link rel="icon" href="data:image/x-icon;base64,AA">
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
   </head>
   <body>
     <div id="container">
       <h1>Frame navigation tests</h1>
-      <a id="outside" href="/src/tests/fixtures/frame_navigation.html" data-turbo-frame="frame">Outside Frame</a>
+      <a id="outside" href="/src/tests/fixtures/frame_navigation.html" data-boost-frame="frame">Outside Frame</a>
 
-      <custom-link-element id="outside-in-shadow-dom" link="/src/tests/fixtures/frame_navigation.html" data-turbo-frame="frame">
+      <custom-link-element id="outside-in-shadow-dom" link="/src/tests/fixtures/frame_navigation.html" data-boost-frame="frame">
         Outside Frame in Shadow DOM
       </custom-link-element>
 
-      <turbo-frame id="frame">
+      <boost-frame id="frame">
         <h2>Frame Navigation</h2>
 
         <a id="inside" href="/src/tests/fixtures/frame_navigation.html">Inside Frame</a>
-        <a id="self" href="/src/tests/fixtures/frame_navigation.html" data-turbo-frame="_self">Self Frame</a>
-        <a id="top" href="/src/tests/fixtures/frame_navigation.html" data-turbo-frame="_top">Top</a>
-      </turbo-frame>
+        <a id="self" href="/src/tests/fixtures/frame_navigation.html" data-boost-frame="_self">Self Frame</a>
+        <a id="top" href="/src/tests/fixtures/frame_navigation.html" data-boost-frame="_top">Top</a>
+      </boost-frame>
 
-      <turbo-frame id="empty-head">
-        <p>The following link has a <code>data-turbo-action="advance"</code> attribute and exists within a Turbo Frame. Tapping
+      <boost-frame id="empty-head">
+        <p>The following link has a <code>data-boost-action="advance"</code> attribute and exists within a Boost Frame. Tapping
           it should replace the frame's contents, keeping the Index heading.</p>
-        <a id="link-to-frame-with-empty-head" href="/src/tests/fixtures/frames/empty_head.html" data-turbo-action="advance">About (a link with data-turbo-action="advance")</a>
-      </turbo-frame>
+        <a id="link-to-frame-with-empty-head" href="/src/tests/fixtures/frames/empty_head.html" data-boost-action="advance">About (a link with data-boost-action="advance")</a>
+      </boost-frame>
 
       <div style="height: calc(100vh*2);"></div>
 
-      <turbo-frame id="eager-loaded-frame" src="/src/tests/fixtures/frames/frame_for_eager.html" loading="lazy"
-                   data-turbo-action="advance">
+      <boost-frame id="eager-loaded-frame" src="/src/tests/fixtures/frames/frame_for_eager.html" loading="lazy"
+                   data-boost-action="advance">
         <h2>Eager-loaded frame: Not Loaded</h2>
-      </turbo-frame>
+      </boost-frame>
     </div>
   </body>
 </html>

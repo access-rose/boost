@@ -48,13 +48,13 @@ export function registerAdapter(adapter: Adapter) {
  * Registers a page-script lifecycle under one or more names. A page opts in by
  * adding to head a meta tag like:
  *
- * <meta name="turbo-script" content="name">
+ * <meta name="boost-script" content="name">
  *
  * `connect` runs when the name first becomes active, `render` on every render while it stays active,
  * `beforeLeave` before every navigation (returning `false` cancels it), and
  * `disconnect` when the name leaves, just before the body is swapped.
  *
- * @param names Name, or names, the page declares via `<meta name="turbo-script">`
+ * @param names Name, or names, the page declares via `<meta name="boost-script">`
  * @param script Lifecycle callbacks
  */
 export function registerScript(names: string | string[], script: PageScript) {
@@ -118,30 +118,30 @@ export function renderStreamMessage(message: StreamMessage | string) {
  */
 export function setProgressBarDelay(delay: number) {
   console.warn(
-    "Please replace `Turbo.setProgressBarDelay(delay)` with `Turbo.config.drive.progressBarDelay = delay`. The top-level function is deprecated and will be removed in a future version of Turbo.`"
+    "Please replace `Boost.setProgressBarDelay(delay)` with `Boost.config.drive.progressBarDelay = delay`. The top-level function is deprecated and will be removed in a future version of Boost.`"
   )
   config.drive.progressBarDelay = delay
 }
 
 export function setConfirmMethod(confirmMethod: ConfirmMethod) {
   console.warn(
-    "Please replace `Turbo.setConfirmMethod(confirmMethod)` with `Turbo.config.forms.confirm = confirmMethod`. The top-level function is deprecated and will be removed in a future version of Turbo.`"
+    "Please replace `Boost.setConfirmMethod(confirmMethod)` with `Boost.config.forms.confirm = confirmMethod`. The top-level function is deprecated and will be removed in a future version of Boost.`"
   )
   config.forms.confirm = confirmMethod
 }
 
 export function setFormMode(mode: FormMode) {
   console.warn(
-    "Please replace `Turbo.setFormMode(mode)` with `Turbo.config.forms.mode = mode`. The top-level function is deprecated and will be removed in a future version of Turbo.`"
+    "Please replace `Boost.setFormMode(mode)` with `Boost.config.forms.mode = mode`. The top-level function is deprecated and will be removed in a future version of Boost.`"
   )
   config.forms.mode = mode
 }
 
 /**
  * Morph the state of the currentBody based on the attributes and contents of
- * the newBody. Morphing body elements may dispatch turbo:morph,
- * turbo:before-morph-element, turbo:before-morph-attribute, and
- * turbo:morph-element events.
+ * the newBody. Morphing body elements may dispatch boost:morph,
+ * boost:before-morph-element, boost:before-morph-attribute, and
+ * boost:morph-element events.
  *
  * @param currentBody HTMLBodyElement destination of morphing changes
  * @param newBody HTMLBodyElement source of morphing changes
@@ -152,13 +152,13 @@ export function morphBodyElements(currentBody: HTMLElement, newBody: HTMLElement
 
 /**
  * Morph the child elements of the currentFrame based on the child elements of
- * the newFrame. Morphing turbo-frame elements may dispatch turbo:before-frame-morph,
- * turbo:before-morph-element, turbo:before-morph-attribute, and
- * turbo:morph-element events.
+ * the newFrame. Morphing boost-frame elements may dispatch boost:before-frame-morph,
+ * boost:before-morph-element, boost:before-morph-attribute, and
+ * boost:morph-element events.
  *
  * @param currentFrame FrameElement destination of morphing children changes
  * @param newFrame FrameElement source of morphing children changes
  */
-export function morphTurboFrameElements(currentFrame: FrameElement, newFrame: FrameElement) {
+export function morphBoostFrameElements(currentFrame: FrameElement, newFrame: FrameElement) {
   MorphingFrameRenderer.renderElement(currentFrame, newFrame)
 }

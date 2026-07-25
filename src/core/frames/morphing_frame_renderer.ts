@@ -5,7 +5,7 @@ import type { FrameElement } from "../../elements/frame_element"
 
 export class MorphingFrameRenderer extends FrameRenderer {
   static renderElement(currentElement: FrameElement, newElement: FrameElement) {
-    dispatch("turbo:before-frame-morph", {
+    dispatch("boost:before-frame-morph", {
       target: currentElement,
       detail: { currentElement, newElement }
     })

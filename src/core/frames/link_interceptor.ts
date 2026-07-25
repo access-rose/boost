@@ -1,5 +1,5 @@
 import { findLinkFromClickTarget } from "../../util"
-import type { TurboClickEvent } from "../session"
+import type { BoostClickEvent } from "../session"
 
 export interface LinkInterceptorDelegate {
   shouldInterceptLinkClick(element: Element, url: string, originalEvent: MouseEvent): boolean
@@ -19,14 +19,14 @@ export class LinkInterceptor {
 
   start() {
     this.element.addEventListener("click", this.clickBubbled)
-    document.addEventListener("turbo:click", this.linkClicked)
-    document.addEventListener("turbo:before-visit", this.willVisit)
+    document.addEventListener("boost:click", this.linkClicked)
+    document.addEventListener("boost:before-visit", this.willVisit)
   }
 
   stop() {
     this.element.removeEventListener("click", this.clickBubbled)
-    document.removeEventListener("turbo:click", this.linkClicked)
-    document.removeEventListener("turbo:before-visit", this.willVisit)
+    document.removeEventListener("boost:click", this.linkClicked)
+    document.removeEventListener("boost:before-visit", this.willVisit)
   }
 
   clickBubbled = (event: Event) => {
@@ -37,7 +37,7 @@ export class LinkInterceptor {
     }
   }
 
-  linkClicked = (event: TurboClickEvent) => {
+  linkClicked = (event: BoostClickEvent) => {
     if (this.clickEvent && this.clickEventIsSignificant(event) && event.target instanceof Element) {
       if (this.delegate.shouldInterceptLinkClick(event.target, event.detail.url, event.detail.originalEvent)) {
         this.clickEvent.preventDefault()
@@ -56,6 +56,6 @@ export class LinkInterceptor {
     const target = event.composed ? (event.target instanceof Element ? event.target.parentElement : undefined) : event.target
     const element = findLinkFromClickTarget(target) || target
 
-    return element instanceof Element && element.closest("turbo-frame, html") == this.element
+    return element instanceof Element && element.closest("boost-frame, html") == this.element
   }
 }

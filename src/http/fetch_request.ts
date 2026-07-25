@@ -22,17 +22,17 @@ export type FetchRequestOptions = {
   priority?: RequestPriority
 }
 
-export type TurboBeforeFetchRequestEvent = CustomEvent<{
+export type BoostBeforeFetchRequestEvent = CustomEvent<{
   fetchOptions: FetchRequestOptions
   url: URL
   resume: (value?: unknown) => void
 }>
 
-export type TurboBeforeFetchResponseEvent = CustomEvent<{
+export type BoostBeforeFetchResponseEvent = CustomEvent<{
   fetchResponse: FetchResponse
 }>
 
-export type TurboFetchRequestErrorEvent = CustomEvent<{
+export type BoostFetchRequestErrorEvent = CustomEvent<{
   request: FetchRequest
   error: unknown
 }>
@@ -200,7 +200,7 @@ export class FetchRequest {
 
   async receive(response: Response): Promise<FetchResponse> {
     const fetchResponse = new FetchResponse(response)
-    const event = dispatch<TurboBeforeFetchResponseEvent>("turbo:before-fetch-response", {
+    const event = dispatch<BoostBeforeFetchResponseEvent>("boost:before-fetch-response", {
       cancelable: true,
       detail: { fetchResponse },
       target: this.target
@@ -235,7 +235,7 @@ export class FetchRequest {
 
   async #allowRequestToBeIntercepted(fetchOptions: FetchRequestOptions) {
     const requestInterception = new Promise((resolve) => (this.#resolveRequestPromise = resolve))
-    const event = dispatch<TurboBeforeFetchRequestEvent>("turbo:before-fetch-request", {
+    const event = dispatch<BoostBeforeFetchRequestEvent>("boost:before-fetch-request", {
       cancelable: true,
       detail: {
         fetchOptions,
@@ -251,7 +251,7 @@ export class FetchRequest {
   }
 
   #willDelegateErrorHandling(error: unknown) {
-    const event = dispatch<TurboFetchRequestErrorEvent>("turbo:fetch-request-error", {
+    const event = dispatch<BoostFetchRequestErrorEvent>("boost:fetch-request-error", {
       target: this.target,
       cancelable: true,
       detail: { request: this, error: error }

@@ -100,7 +100,7 @@ export class FormSubmission implements FetchRequestDelegate {
 
   async start() {
     const { initialized, requesting } = FormSubmissionState
-    const confirmationMessage = getAttribute("data-turbo-confirm", this.submitter, this.formElement)
+    const confirmationMessage = getAttribute("data-boost-confirm", this.submitter, this.formElement)
 
     if (typeof confirmationMessage === "string") {
       const confirmMethod = typeof config.forms.confirm === "function" ?
@@ -138,7 +138,7 @@ export class FormSubmission implements FetchRequestDelegate {
       }
     }
 
-    if (this.requestAcceptsTurboStreamResponse(request)) {
+    if (this.requestAcceptsBoostStreamResponse(request)) {
       request.acceptResponseType(StreamMessage.contentType)
     }
   }
@@ -148,7 +148,7 @@ export class FormSubmission implements FetchRequestDelegate {
     if (this.submitter) config.forms.submitter?.beforeSubmit(this.submitter)
     this.setSubmitsWith()
     markAsBusy(this.formElement)
-    dispatch("turbo:submit-start", {
+    dispatch("boost:submit-start", {
       target: this.formElement,
       detail: { formSubmission: this }
     })
@@ -189,7 +189,7 @@ export class FormSubmission implements FetchRequestDelegate {
     if (this.submitter) config.forms.submitter?.afterSubmit(this.submitter)
     this.resetSubmitterText()
     clearBusyState(this.formElement)
-    dispatch("turbo:submit-end", {
+    dispatch("boost:submit-end", {
       target: this.formElement,
       detail: { formSubmission: this, ...this.result }
     })
@@ -226,12 +226,12 @@ export class FormSubmission implements FetchRequestDelegate {
     return !request.isSafe && this.mustRedirect
   }
 
-  requestAcceptsTurboStreamResponse(request: FetchRequest) {
-    return !request.isSafe || hasAttribute("data-turbo-stream", this.submitter, this.formElement)
+  requestAcceptsBoostStreamResponse(request: FetchRequest) {
+    return !request.isSafe || hasAttribute("data-boost-stream", this.submitter, this.formElement)
   }
 
   get submitsWith() {
-    return this.submitter?.getAttribute("data-turbo-submits-with")
+    return this.submitter?.getAttribute("data-boost-submits-with")
   }
 }
 

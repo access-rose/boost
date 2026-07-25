@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Turbo</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <title>Boost</title>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
     <script type="module">
-      for (const event of ["turbo:before-render", "turbo:before-frame-render"]) {
+      for (const event of ["boost:before-render", "boost:before-frame-render"]) {
         addEventListener(event, function(event) {
           event.preventDefault()
           if (confirm("Continue rendering?")) {
@@ -21,11 +21,11 @@
       <h1>Pausable Rendering</h1>
       <p><a id="link" href="/src/tests/fixtures/one.html">Link</a></p>
 
-      <turbo-frame id="hello">
+      <boost-frame id="hello">
         <h2>Pausable Frame Rendering</h2>
 
         <a id="frame-link" href="/src/tests/fixtures/frames/hello.html">#hello Frame Link</a>
-      </turbo-frame>
+      </boost-frame>
     </section>
   </body>
 </html>

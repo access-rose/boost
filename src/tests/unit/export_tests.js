@@ -1,32 +1,32 @@
 import { assert } from "@open-wc/testing"
-import * as Turbo from "../../"
+import * as Boost from "../../"
 import { StreamActions } from "../../"
 
-test("Turbo interface", () => {
-  assert.equal(typeof Turbo.StreamActions, "object")
-  assert.equal(typeof Turbo.start, "function")
-  assert.equal(typeof Turbo.registerAdapter, "function")
-  assert.equal(typeof Turbo.visit, "function")
-  assert.equal(typeof Turbo.connectStreamSource, "function")
-  assert.equal(typeof Turbo.disconnectStreamSource, "function")
-  assert.equal(typeof Turbo.renderStreamMessage, "function")
-  assert.equal(typeof Turbo.setProgressBarDelay, "function")
-  assert.equal(typeof Turbo.setConfirmMethod, "function")
-  assert.equal(typeof Turbo.setFormMode, "function")
-  assert.equal(typeof Turbo.config, "object")
-  assert.equal(typeof Turbo.navigator, "object")
-  assert.equal(typeof Turbo.session, "object")
-  assert.equal(typeof Turbo.session.drive, "boolean")
-  assert.equal(typeof Turbo.session.formMode, "string")
-  assert.equal(typeof Turbo.fetch, "function")
-  assert.equal(typeof Turbo.morphElements, "function")
-  assert.equal(typeof Turbo.morphChildren, "function")
-  assert.equal(typeof Turbo.morphBodyElements, "function")
-  assert.equal(typeof Turbo.morphTurboFrameElements, "function")
+test("Boost interface", () => {
+  assert.equal(typeof Boost.StreamActions, "object")
+  assert.equal(typeof Boost.start, "function")
+  assert.equal(typeof Boost.registerAdapter, "function")
+  assert.equal(typeof Boost.visit, "function")
+  assert.equal(typeof Boost.connectStreamSource, "function")
+  assert.equal(typeof Boost.disconnectStreamSource, "function")
+  assert.equal(typeof Boost.renderStreamMessage, "function")
+  assert.equal(typeof Boost.setProgressBarDelay, "function")
+  assert.equal(typeof Boost.setConfirmMethod, "function")
+  assert.equal(typeof Boost.setFormMode, "function")
+  assert.equal(typeof Boost.config, "object")
+  assert.equal(typeof Boost.navigator, "object")
+  assert.equal(typeof Boost.session, "object")
+  assert.equal(typeof Boost.session.drive, "boolean")
+  assert.equal(typeof Boost.session.formMode, "string")
+  assert.equal(typeof Boost.fetch, "function")
+  assert.equal(typeof Boost.morphElements, "function")
+  assert.equal(typeof Boost.morphChildren, "function")
+  assert.equal(typeof Boost.morphBodyElements, "function")
+  assert.equal(typeof Boost.morphBoostFrameElements, "function")
 })
 
 test("Session interface", () => {
-  const { session, config } = Turbo
+  const { session, config } = Boost
 
   assert.equal(true, session.drive)
   assert.equal(true, config.drive.enabled)

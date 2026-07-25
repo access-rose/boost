@@ -5,36 +5,36 @@ test("frame navigation with descendant link", async ({ page }) => {
   await page.goto("/src/tests/fixtures/frame_navigation.html")
   await page.click("#inside")
 
-  await nextEventOnTarget(page, "frame", "turbo:frame-load")
+  await nextEventOnTarget(page, "frame", "boost:frame-load")
 })
 
 test("frame navigation with self link", async ({ page }) => {
   await page.goto("/src/tests/fixtures/frame_navigation.html")
   await page.click("#self")
 
-  await nextEventOnTarget(page, "frame", "turbo:frame-load")
+  await nextEventOnTarget(page, "frame", "boost:frame-load")
 })
 
 test("frame navigation with exterior link", async ({ page }) => {
   await page.goto("/src/tests/fixtures/frame_navigation.html")
   await page.click("#outside")
 
-  await nextEventOnTarget(page, "frame", "turbo:frame-load")
+  await nextEventOnTarget(page, "frame", "boost:frame-load")
 })
 
 test("frame navigation with exterior link in Shadow DOM", async ({ page }) => {
   await page.goto("/src/tests/fixtures/frame_navigation.html")
   await page.click("#outside-in-shadow-dom")
 
-  await nextEventOnTarget(page, "frame", "turbo:frame-load")
+  await nextEventOnTarget(page, "frame", "boost:frame-load")
 })
 
-test("frame navigation with data-turbo-action", async ({ page }) => {
+test("frame navigation with data-boost-action", async ({ page }) => {
   await page.goto("/src/tests/fixtures/frame_navigation.html")
   await page.click("#link-to-frame-with-empty-head")
   await nextBeat()
 
-  await nextEventOnTarget(page, "empty-head", "turbo:frame-load")
+  await nextEventOnTarget(page, "empty-head", "boost:frame-load")
 
   const frameText = page.locator("#empty-head h2")
   await expect(frameText).toHaveText("Frame updated")
@@ -47,7 +47,7 @@ test("frame navigation emits fetch-request-error event when offline", async ({ p
   await page.goto("/src/tests/fixtures/tabs.html")
   await page.context().setOffline(true)
   await page.click("#tab-2")
-  await nextEventOnTarget(page, "tab-frame", "turbo:fetch-request-error")
+  await nextEventOnTarget(page, "tab-frame", "boost:fetch-request-error")
 })
 
 test("lazy-loaded frame promotes navigation", async ({ page }) => {
@@ -56,7 +56,7 @@ test("lazy-loaded frame promotes navigation", async ({ page }) => {
   await expect(page.locator("#eager-loaded-frame h2")).toHaveText("Eager-loaded frame: Not Loaded")
 
   await scrollToSelector(page, "#eager-loaded-frame")
-  await nextEventOnTarget(page, "eager-loaded-frame", "turbo:frame-load")
+  await nextEventOnTarget(page, "eager-loaded-frame", "boost:frame-load")
 
   await expect(page.locator("#eager-loaded-frame h2")).toHaveText("Eager-loaded frame: Loaded")
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/frames/frame_for_eager.html"))
@@ -66,19 +66,19 @@ test("promoted frame navigation updates the URL before rendering", async ({ page
   await page.goto("/src/tests/fixtures/tabs.html")
 
   page.evaluate(() => {
-    addEventListener("turbo:before-frame-render", () => {
+    addEventListener("boost:before-frame-render", () => {
       localStorage.setItem("beforeRenderUrl", window.location.pathname)
       localStorage.setItem("beforeRenderContent", document.querySelector("#tab-content")?.textContent || "")
     })
   })
 
   await page.click("#tab-2")
-  await nextEventNamed(page, "turbo:before-frame-render")
+  await nextEventNamed(page, "boost:before-frame-render")
 
   expect(await getFromLocalStorage(page, "beforeRenderUrl")).toEqual("/src/tests/fixtures/tabs/two.html")
   expect(await getFromLocalStorage(page, "beforeRenderContent")).toEqual("One")
 
-  await nextEventNamed(page, "turbo:frame-render")
+  await nextEventNamed(page, "boost:frame-render")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/tabs/two.html"))
   await expect(page.locator("#tab-content")).toHaveText("Two")
@@ -93,30 +93,30 @@ test("navigating back to a promoted frame navigation re-fetches it as a page", a
   await page.goto("/src/tests/fixtures/tabs.html")
 
   await page.click("#tab-2")
-  await nextEventOnTarget(page, "tab-frame", "turbo:frame-load")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventOnTarget(page, "tab-frame", "boost:frame-load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("#tab-content")).toHaveText("Two")
   expect(pathname((await page.getAttribute("#tab-frame", "src")) || "")).toEqual("/src/tests/fixtures/tabs/two.html")
   await expect(page.locator("#tab-frame"), "sets [complete]").toHaveAttribute("complete")
 
   await page.click("#tab-3")
-  await nextEventOnTarget(page, "tab-frame", "turbo:frame-load")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventOnTarget(page, "tab-frame", "boost:frame-load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("#tab-content")).toHaveText("Three")
   expect(pathname((await page.getAttribute("#tab-frame", "src")) || "")).toEqual("/src/tests/fixtures/tabs/three.html")
   await expect(page.locator("#tab-frame"), "sets [complete]").toHaveAttribute("complete")
 
   await page.goBack()
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("#tab-content")).toHaveText("Two")
   await expect(page.locator("#tab-frame"), "re-fetches two.html without [src]").not.toHaveAttribute("src")
   await expect(page.locator("#tab-frame"), "re-fetches two.html without [complete]").not.toHaveAttribute("complete")
 
   await page.goBack()
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("#tab-content")).toHaveText("One")
   await expect(page.locator("#tab-frame"), "re-fetches one.html without [src]").not.toHaveAttribute("src")

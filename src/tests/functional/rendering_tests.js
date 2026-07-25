@@ -25,30 +25,30 @@ test.beforeEach(async ({ page }) => {
 
 test("triggers before-render and render events", async ({ page }) => {
   await page.click("#same-origin-link")
-  const { newBody } = await nextEventNamed(page, "turbo:before-render", { renderMethod: "replace" })
+  const { newBody } = await nextEventNamed(page, "boost:before-render", { renderMethod: "replace" })
 
   await expect(page.locator("h1")).toHaveText("One")
 
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(newBody).toEqual(await page.evaluate(() => document.body.outerHTML))
 })
 
 test("triggers before-render, render, and load events for error pages", async ({ page }) => {
   await page.click("#nonexistent-link")
-  const { newBody } = await nextEventNamed(page, "turbo:before-render")
+  const { newBody } = await nextEventNamed(page, "boost:before-render")
 
   expect(await textContent(page, newBody)).toEqual("\nCannot GET /nonexistent\n\n\n")
 
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(newBody).toEqual(await page.evaluate(() => document.body.outerHTML))
 
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 })
 
 test("reloads when tracked elements change", async ({ page }) => {
   await page.evaluate(() =>
     window.addEventListener(
-      "turbo:reload",
+      "boost:reload",
       (e) => {
         localStorage.setItem("reloadReason", e.detail.reason)
       },
@@ -70,7 +70,7 @@ test("reloads when tracked elements change due to failed form submission", async
 
   await page.evaluate(() => {
     window.addEventListener(
-      "turbo:reload",
+      "boost:reload",
       (e) => {
         localStorage.setItem("reason", e.detail.reason)
       },
@@ -100,7 +100,7 @@ test("reloads when tracked elements change due to failed form submission", async
 
 test("before-render event supports custom render function", async ({ page }) => {
   await page.evaluate(() =>
-    addEventListener("turbo:before-render", (event) => {
+    addEventListener("boost:before-render", (event) => {
       const { detail } = event
       const { render } = detail
       detail.render = (currentElement, newElement) => {
@@ -121,7 +121,7 @@ test("before-render event supports async custom render function", async ({ page 
         setTimeout(() => resolve(), 0)
       })
 
-    addEventListener("turbo:before-render", (event) => {
+    addEventListener("boost:before-render", (event) => {
       const { detail } = event
       const { render } = detail
       detail.render = async (currentElement, newElement) => {
@@ -132,12 +132,12 @@ test("before-render event supports async custom render function", async ({ page 
       }
     })
 
-    addEventListener("turbo:load", () => {
+    addEventListener("boost:load", () => {
       localStorage.setItem("renderedElement", document.getElementById("custom-rendered")?.textContent || "")
     })
   })
   await page.click("#same-origin-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   const renderedElement = await page.evaluate(() => localStorage.getItem("renderedElement"))
 
@@ -151,10 +151,10 @@ test("wont reload when tracked elements has a nonce", async ({ page }) => {
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("reloads when turbo-visit-control setting is reload", async ({ page }) => {
+test("reloads when boost-visit-control setting is reload", async ({ page }) => {
   await page.evaluate(() =>
     window.addEventListener(
-      "turbo:reload",
+      "boost:reload",
       (e) => {
         localStorage.setItem("reloadReason", e.detail.reason)
       },
@@ -167,10 +167,10 @@ test("reloads when turbo-visit-control setting is reload", async ({ page }) => {
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/visit_control_reload.html"))
   const reason = await page.evaluate(() => localStorage.getItem("reloadReason"))
   expect(await visitAction(page)).toEqual("load")
-  expect(reason).toEqual("turbo_visit_control_is_reload")
+  expect(reason).toEqual("boost_visit_control_is_reload")
 })
 
-test("maintains scroll position before visit when turbo-visit-control setting is reload", async ({ page }) => {
+test("maintains scroll position before visit when boost-visit-control setting is reload", async ({ page }) => {
   await scrollToSelector(page, "#below-the-fold-visit-control-reload-link")
   expect(await isScrolledToTop(page), "scrolled down").toEqual(false)
 
@@ -194,7 +194,7 @@ test("maintains scroll position before visit when turbo-visit-control setting is
 
 test("changes the html[lang] attribute", async ({ page }) => {
   await page.click("#es_locale_link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("html")).toHaveAttribute("lang", "es")
 })
@@ -245,7 +245,7 @@ test("evaluates head stylesheet elements", async ({ page }) => {
   expect(await isStylesheetEvaluated(page)).toEqual(false)
 
   await page.click("#additional-assets-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await isStylesheetEvaluated(page)).toEqual(true)
 })
 
@@ -253,7 +253,7 @@ test("does not evaluate head stylesheet elements inside noscript elements", asyn
   expect(await isNoscriptStylesheetEvaluated(page)).toEqual(false)
 
   await page.click("#additional-assets-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await isNoscriptStylesheetEvaluated(page)).toEqual(false)
 })
 
@@ -261,13 +261,13 @@ test("does not evaluate body stylesheet elements inside noscript elements", asyn
   expect(await isNoscriptStylesheetEvaluated(page)).toEqual(false)
 
   await page.click("#body-noscript-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await isNoscriptStylesheetEvaluated(page)).toEqual(false)
 })
 
 test("preserves noscript elements with non-style content after navigation", async ({ page }) => {
   await page.click("#body-noscript-content-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
 
   const noscriptCount = await page.locator("#lazy-load-noscript").count()
   expect(noscriptCount).toEqual(1)
@@ -275,7 +275,7 @@ test("preserves noscript elements with non-style content after navigation", asyn
 
 test("removes only stylesheet elements from noscript with mixed content", async ({ page }) => {
   await page.click("#body-noscript-content-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
 
   const mixedNoscriptExists = await page.locator("#mixed-noscript").count()
   expect(mixedNoscriptExists).toEqual(1)
@@ -285,7 +285,7 @@ test("removes only stylesheet elements from noscript with mixed content", async 
 
 test("removes alternate stylesheet elements from noscript", async ({ page }) => {
   await page.click("#body-noscript-content-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
 
   const noscriptExists = await page.locator("#alternate-stylesheet-noscript").count()
   expect(noscriptExists).toEqual(1)
@@ -310,7 +310,7 @@ test("waits for CSS to be loaded before rendering", async ({ page }) => {
 
   finishLoadingCSS()
 
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
 
   await expect(page.locator("h1")).toHaveText("Additional assets")
   expect(await isStylesheetEvaluated(page)).toEqual(true)
@@ -333,7 +333,7 @@ test("waits for CSS to fail before rendering", async ({ page }) => {
 
   finishLoadingCSS()
 
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
 
   await expect(page.locator("h1")).toHaveText("Additional assets")
   expect(await isStylesheetEvaluated(page)).toEqual(false)
@@ -351,7 +351,7 @@ test("waits for some time, but renders if CSS takes too much to load", async ({ 
 
   await page.click("#additional-assets-link")
   await sleep(3000)
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
 
   await expect(page.locator("h1")).toHaveText("Additional assets")
   expect(await isStylesheetEvaluated(page)).toEqual(false)
@@ -366,15 +366,15 @@ test("skip evaluates head script elements once", async ({ page }) => {
   expect(await headScriptEvaluationCount(page)).toEqual(undefined)
 
   await page.click("#head-script-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await headScriptEvaluationCount(page)).toEqual(1)
 
   await page.goBack()
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await headScriptEvaluationCount(page)).toEqual(1)
 
   await page.click("#head-script-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await headScriptEvaluationCount(page)).toEqual(1)
 })
 
@@ -382,21 +382,21 @@ test("evaluates body script elements on each render", async ({ page }) => {
   expect(await bodyScriptEvaluationCount(page)).toEqual(undefined)
 
   await page.click("#body-script-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await bodyScriptEvaluationCount(page)).toEqual(1)
 
   await page.goBack()
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await bodyScriptEvaluationCount(page)).toEqual(1)
 
   await page.click("#body-script-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await bodyScriptEvaluationCount(page)).toEqual(2)
 })
 
-test("does not evaluate data-turbo-eval=false scripts", async ({ page }) => {
+test("does not evaluate data-boost-eval=false scripts", async ({ page }) => {
   await page.click("#eval-false-script-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await bodyScriptEvaluationCount(page)).toEqual(undefined)
 })
 
@@ -405,18 +405,18 @@ test("preserves permanent elements", async ({ page }) => {
   await expect(permanentElement).toHaveText("Rendering")
 
   await page.click("#permanent-element-link")
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await strictElementEquals(permanentElement, await page.locator("#permanent"))).toEqual(true)
   await expect(permanentElement).toHaveText("Rendering")
 
   await page.goBack()
-  await nextEventNamed(page, "turbo:render")
+  await nextEventNamed(page, "boost:render")
   expect(await strictElementEquals(permanentElement, await page.locator("#permanent"))).toEqual(true)
 })
 
 test("restores focus during page rendering when transposing the activeElement", async ({ page }) => {
   await page.press("#permanent-input", "Enter")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("#permanent-input"), "restores focus after page loads").toBeFocused()
 })
@@ -425,15 +425,15 @@ test("restores focus during page rendering when transposing an ancestor of the a
   page
 }) => {
   await page.press("#permanent-descendant-input", "Enter")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page.locator("#permanent-descendant-input"), "restores focus after page loads").toBeFocused()
 })
 
-test("before-frame-render event supports custom render function within turbo-frames", async ({ page }) => {
+test("before-frame-render event supports custom render function within boost-frames", async ({ page }) => {
   const frame = await page.locator("#frame")
   await frame.evaluate((frame) =>
-    frame.addEventListener("turbo:before-frame-render", (event) => {
+    frame.addEventListener("boost:before-frame-render", (event) => {
       const { detail } = event
       const { render } = detail
       detail.render = (currentElement, newElement) => {
@@ -449,7 +449,7 @@ test("before-frame-render event supports custom render function within turbo-fra
   await expect(page.locator("#frame #custom-rendered"), "renders with custom function").toHaveText("Custom Rendered Frame")
 })
 
-test("preserves permanent elements within turbo-frames", async ({ page }) => {
+test("preserves permanent elements within boost-frames", async ({ page }) => {
   await expect(page.locator("#permanent-in-frame")).toHaveText("Rendering")
 
   await page.click("#permanent-in-frame-element-link")
@@ -458,14 +458,14 @@ test("preserves permanent elements within turbo-frames", async ({ page }) => {
   await expect(page.locator("#permanent-in-frame")).toHaveText("Rendering")
 })
 
-test("restores focus during turbo-frame rendering when transposing the activeElement", async ({ page }) => {
+test("restores focus during boost-frame rendering when transposing the activeElement", async ({ page }) => {
   await page.press("#permanent-input-in-frame", "Enter")
   await nextBeat()
 
   await expect(page.locator("#permanent-input-in-frame"), "restores focus after page loads").toBeFocused()
 })
 
-test("restores focus during turbo-frame rendering when transposing a descendant of the activeElement", async ({
+test("restores focus during boost-frame rendering when transposing a descendant of the activeElement", async ({
   page
 }) => {
   await page.press("#permanent-descendant-input-in-frame", "Enter")
@@ -489,14 +489,14 @@ test("preserves permanent element video playback", async ({ page }) => {
   expect(timeAfterRender, "element state is preserved").toEqual(timeBeforeRender)
 })
 
-test("preserves permanent element through Turbo Stream update", async ({ page }) => {
+test("preserves permanent element through Boost Stream update", async ({ page }) => {
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="update" target="frame">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="update" target="frame">
         <template>
-          <div id="permanent-in-frame" data-turbo-permanent>Ignored</div>
+          <div id="permanent-in-frame" data-boost-permanent>Ignored</div>
         </template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
   await nextBeat()
@@ -504,14 +504,14 @@ test("preserves permanent element through Turbo Stream update", async ({ page })
   await expect(page.locator("#permanent-in-frame")).toHaveText("Rendering")
 })
 
-test("preserves permanent element through Turbo Stream append", async ({ page }) => {
+test("preserves permanent element through Boost Stream append", async ({ page }) => {
   await page.evaluate(() => {
-    window.Turbo.renderStreamMessage(`
-      <turbo-stream action="append" target="frame">
+    window.Boost.renderStreamMessage(`
+      <boost-stream action="append" target="frame">
         <template>
-          <div id="permanent-in-frame" data-turbo-permanent>Ignored</div>
+          <div id="permanent-in-frame" data-boost-permanent>Ignored</div>
         </template>
-      </turbo-stream>
+      </boost-stream>
     `)
   })
   await nextBeat()

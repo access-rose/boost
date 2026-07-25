@@ -35,7 +35,7 @@ import type { LinkInterceptorDelegate } from "./link_interceptor"
 import type { ViewDelegate, ViewRenderOptions } from "../view"
 import type { SubmitterElement } from "../config/forms"
 import type { VisitOptions } from "../drive/visit"
-import { TurboFrameMissingError } from "../errors"
+import { BoostFrameMissingError } from "../errors"
 
 export class FrameController
   implements
@@ -199,7 +199,7 @@ export class FrameController
 
   submittedFormLinkToLocation(link: Element, _location: URL, form: HTMLFormElement) {
     const frame = this.#findFrameElement(link)
-    if (frame) form.setAttribute("data-turbo-frame", frame.id)
+    if (frame) form.setAttribute("data-boost-frame", frame.id)
   }
 
   // Link interceptor delegate
@@ -215,7 +215,7 @@ export class FrameController
   // Form submit observer delegate
 
   willSubmitForm(element: HTMLFormElement, submitter?: SubmitterElement) {
-    return element.closest("turbo-frame") == this.element && this.#shouldInterceptNavigation(element, submitter)
+    return element.closest("boost-frame") == this.element && this.#shouldInterceptNavigation(element, submitter)
   }
 
   formSubmitted(element: HTMLFormElement, submitter?: SubmitterElement) {
@@ -235,9 +235,9 @@ export class FrameController
   // Fetch request delegate
 
   prepareRequest(request: FetchRequest, frame: { id: string } = this) {
-    request.headers["Turbo-Frame"] = frame.id
+    request.headers["Boost-Frame"] = frame.id
 
-    if (this.currentNavigationElement?.hasAttribute("data-turbo-stream")) {
+    if (this.currentNavigationElement?.hasAttribute("data-boost-stream")) {
       request.acceptResponseType(StreamMessage.contentType)
     }
   }
@@ -297,7 +297,7 @@ export class FrameController
   // View delegate
 
   allowsImmediateRender({ element: newFrame }: Snapshot<FrameElement>, options: ViewRenderOptions<FrameElement>) {
-    const event = dispatch("turbo:before-frame-render", {
+    const event = dispatch("boost:before-frame-render", {
       target: this.element,
       detail: { newFrame, ...options },
       cancelable: true
@@ -400,7 +400,7 @@ export class FrameController
 
   async #handleUnvisitableFrameResponse(fetchResponse: FetchResponse) {
     console.warn(
-      `The response (${fetchResponse.statusCode}) from <turbo-frame id="${this.element.id}"> is performing a full page visit due to turbo-visit-control.`
+      `The response (${fetchResponse.statusCode}) from <boost-frame id="${this.element.id}"> is performing a full page visit due to boost-visit-control.`
     )
 
     await this.#visitResponse(fetchResponse.response)
@@ -418,7 +418,7 @@ export class FrameController
       }
     }
 
-    const event = dispatch("turbo:frame-missing", {
+    const event = dispatch("boost:frame-missing", {
       target: this.element,
       detail: { response, visit },
       cancelable: true
@@ -433,8 +433,8 @@ export class FrameController
   }
 
   #throwFrameMissingError(fetchResponse: FetchResponse) {
-    const message = `The response (${fetchResponse.statusCode}) did not contain the expected <turbo-frame id="${this.element.id}"> and will be ignored. To perform a full page visit instead, set turbo-visit-control to reload.`
-    throw new TurboFrameMissingError(message)
+    const message = `The response (${fetchResponse.statusCode}) did not contain the expected <boost-frame id="${this.element.id}"> and will be ignored. To perform a full page visit instead, set boost-visit-control to reload.`
+    throw new BoostFrameMissingError(message)
   }
 
   async #visitResponse(response: Response) {
@@ -446,7 +446,7 @@ export class FrameController
   }
 
   #findFrameElement(element: Element, submitter?: SubmitterElement) {
-    const id = getAttribute("data-turbo-frame", submitter, element) || this.element.getAttribute("target")
+    const id = getAttribute("data-boost-frame", submitter, element) || this.element.getAttribute("target")
     const target = this.#getFrameElementById(id)
 
     return target instanceof FrameElement ? target : this.element
@@ -457,12 +457,12 @@ export class FrameController
     const id = CSS.escape(this.id)
 
     try {
-      element = activateElement(container.querySelector(`turbo-frame#${id}`), this.sourceURL)
+      element = activateElement(container.querySelector(`boost-frame#${id}`), this.sourceURL)
       if (element) {
         return element
       }
 
-      element = activateElement(container.querySelector(`turbo-frame[src][recurse~=${id}]`), this.sourceURL)
+      element = activateElement(container.querySelector(`boost-frame[src][recurse~=${id}]`), this.sourceURL)
       if (element) {
         await element.loaded
         return await this.extractForeignFrameElement(element)
@@ -482,7 +482,7 @@ export class FrameController
   }
 
   #shouldInterceptNavigation(element: Element, submitter?: SubmitterElement) {
-    const id = getAttribute("data-turbo-frame", submitter, element) || this.element.getAttribute("target")
+    const id = getAttribute("data-boost-frame", submitter, element) || this.element.getAttribute("target")
 
     if (element instanceof HTMLFormElement && !this.#formActionIsVisitable(element, submitter)) {
       return false
@@ -563,7 +563,7 @@ export class FrameController
   }
 
   get rootLocation() {
-    const meta = this.element.ownerDocument.querySelector<HTMLMetaElement>(`meta[name="turbo-root"]`)
+    const meta = this.element.ownerDocument.querySelector<HTMLMetaElement>(`meta[name="boost-root"]`)
     const root = meta?.content ?? "/"
     return expandURL(root)
   }
@@ -587,7 +587,7 @@ export class FrameController
   #getFrameElementById(id: string | null) {
     if (id != null) {
       const element = id === "_parent" ?
-        this.element.parentElement?.closest("turbo-frame") :
+        this.element.parentElement?.closest("boost-frame") :
         document.getElementById(id)
       if (element instanceof FrameElement) {
         return element
@@ -600,7 +600,7 @@ function activateElement(element: FrameElement | null, currentURL?: string | nul
   if (element) {
     const src = element.getAttribute("src")
     if (src != null && currentURL != null && urlsAreEqual(src, currentURL)) {
-      throw new Error(`Matching <turbo-frame id="${element.id}"> element has a source URL which references itself`)
+      throw new Error(`Matching <boost-frame id="${element.id}"> element has a source URL which references itself`)
     }
     if (element.ownerDocument !== document) {
       element = document.importNode(element, true)

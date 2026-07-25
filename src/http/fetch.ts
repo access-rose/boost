@@ -3,11 +3,11 @@ import { LimitedSet } from "../core/drive/limited_set"
 
 export const recentRequests = new LimitedSet<string>(20)
 
-function fetchWithTurboHeaders(url: RequestInfo | URL, options: RequestInit = {}) {
+function fetchWithBoostHeaders(url: RequestInfo | URL, options: RequestInit = {}) {
   const modifiedHeaders = new Headers(options.headers || {})
   const requestUID = uuid()
   recentRequests.add(requestUID)
-  modifiedHeaders.append("X-Turbo-Request-Id", requestUID)
+  modifiedHeaders.append("X-Boost-Request-Id", requestUID)
 
   return window.fetch(url, {
     ...options,
@@ -15,4 +15,4 @@ function fetchWithTurboHeaders(url: RequestInfo | URL, options: RequestInit = {}
   })
 }
 
-export { fetchWithTurboHeaders as fetch }
+export { fetchWithBoostHeaders as fetch }

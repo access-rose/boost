@@ -88,7 +88,7 @@ export async function reloadPage(page, timeout = 500) {
 }
 
 export async function nextPageRefresh(page, timeout = 500) {
-  const pageRefreshDebouncePeriod = await page.evaluate(() => window.Turbo.session.pageRefreshDebouncePeriod)
+  const pageRefreshDebouncePeriod = await page.evaluate(() => window.Boost.session.pageRefreshDebouncePeriod)
 
   return sleep(pageRefreshDebouncePeriod + timeout)
 }
@@ -260,7 +260,7 @@ export function readMutationLogs(page, length) {
 }
 
 export function refreshWithStream(page) {
-  return page.evaluate(() => document.body.insertAdjacentHTML("beforeend", `<turbo-stream action="refresh"></turbo-stream>`))
+  return page.evaluate(() => document.body.insertAdjacentHTML("beforeend", `<boost-stream action="refresh"></boost-stream>`))
 }
 
 export function searchParams(url) {

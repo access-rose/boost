@@ -7,7 +7,7 @@ export type DispatchOptions<T extends CustomEvent> = {
 }
 
 export function activateScriptElement(element: HTMLScriptElement) {
-  if (element.getAttribute("data-turbo-eval") == "false") {
+  if (element.getAttribute("data-boost-eval") == "false") {
     return element
   } else {
     const createdScriptElement = document.createElement("script")
@@ -127,7 +127,7 @@ export function hasAttribute(attributeName: string, ...elements: (Element | null
 
 export function markAsBusy(...elements: Element[]) {
   for (const element of elements) {
-    if (element.localName == "turbo-frame") {
+    if (element.localName == "boost-frame") {
       element.setAttribute("busy", "")
     }
     element.setAttribute("aria-busy", "true")
@@ -136,7 +136,7 @@ export function markAsBusy(...elements: Element[]) {
 
 export function clearBusyState(...elements: Element[]) {
   for (const element of elements) {
-    if (element.localName == "turbo-frame") {
+    if (element.localName == "boost-frame") {
       element.removeAttribute("busy")
     }
 
@@ -173,7 +173,7 @@ export function isAction(action: unknown): action is Action {
 }
 
 export function getVisitAction(...elements: (Element | null | undefined)[]): Action | null {
-  const action = getAttribute("data-turbo-action", ...elements)
+  const action = getAttribute("data-boost-action", ...elements)
 
   return isAction(action) ? action : null
 }

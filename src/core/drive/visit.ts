@@ -87,7 +87,7 @@ export const Direction = {
 } as const
 
 export class Visit implements FetchRequestDelegate {
-  identifier = uuid() // Required by turbo-ios
+  identifier = uuid() // Required by boost-ios
   timingMetrics: TimingMetrics = {}
 
   followedRedirect = false

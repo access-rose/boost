@@ -62,6 +62,6 @@ export class PageSnapshot extends Snapshot<HTMLElement> {
   // Private
 
   getSetting(name: string) {
-    return this.headSnapshot.getMetaValue(`turbo-${name}`)
+    return this.headSnapshot.getMetaValue(`boost-${name}`)
   }
 }

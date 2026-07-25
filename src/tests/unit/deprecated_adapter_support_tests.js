@@ -1,4 +1,4 @@
-import * as Turbo from "../../index"
+import * as Boost from "../../index"
 import { assert } from "@open-wc/testing"
 
 class DeprecatedAdapterSupportTest {
@@ -38,11 +38,11 @@ let adapter
 
 setup(() => {
   adapter = new DeprecatedAdapterSupportTest()
-  Turbo.registerAdapter(adapter)
+  Boost.registerAdapter(adapter)
 })
 
 test("visit proposal location includes deprecated absoluteURL property", async () => {
-  Turbo.navigator.proposeVisit(new URL(window.location.toString()))
+  Boost.navigator.proposeVisit(new URL(window.location.toString()))
   assert.equal(adapter.locations.length, 1)
 
   const [location] = adapter.locations
@@ -50,7 +50,7 @@ test("visit proposal location includes deprecated absoluteURL property", async (
 })
 
 test("visit start location includes deprecated absoluteURL property", async () => {
-  Turbo.navigator.startVisit(window.location.toString(), "123")
+  Boost.navigator.startVisit(window.location.toString(), "123")
   assert.equal(adapter.locations.length, 1)
 
   const [location] = adapter.locations

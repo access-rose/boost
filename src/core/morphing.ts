@@ -14,8 +14,8 @@ export type MorphOptions = Omit<IdiomorphConfig, "callbacks"> & {
 
 /**
  * Morph the state of the currentElement based on the attributes and contents of
- * the newElement. Morphing may dispatch turbo:before-morph-element,
- * turbo:before-morph-attribute, and turbo:morph-element events.
+ * the newElement. Morphing may dispatch boost:before-morph-element,
+ * boost:before-morph-attribute, and boost:morph-element events.
  *
  * @param currentElement Element destination of morphing changes
  * @param newElement Element source of morphing changes
@@ -29,8 +29,8 @@ export function morphElements(currentElement: Element, newElement: Node | NodeLi
 
 /**
  * Morph the child elements of the currentElement based on the child elements of
- * the newElement. Morphing children may dispatch turbo:before-morph-element,
- * turbo:before-morph-attribute, and turbo:morph-element events.
+ * the newElement. Morphing children may dispatch boost:before-morph-element,
+ * boost:before-morph-attribute, and boost:morph-element events.
  *
  * @param currentElement Element destination of morphing children changes
  * @param newElement Element source of morphing children changes
@@ -45,19 +45,19 @@ export function morphChildren(currentElement: Element, newElement: Element | Doc
 export function shouldRefreshFrameWithMorphing(currentFrame: Node, newFrame: Node | null): currentFrame is FrameElement {
   return currentFrame instanceof FrameElement &&
     !!currentFrame.shouldReloadWithMorph && (!newFrame || areFramesCompatibleForRefreshing(currentFrame, newFrame)) &&
-    !currentFrame.closest("[data-turbo-permanent]")
+    !currentFrame.closest("[data-boost-permanent]")
 }
 
 function areFramesCompatibleForRefreshing(currentFrame: FrameElement, newFrame: Node) {
   // newFrame cannot yet be an instance of FrameElement because custom
   // elements don't get initialized until they're attached to the DOM, so
   // test its Element#nodeName instead
-  return newFrame instanceof Element && newFrame.nodeName === "TURBO-FRAME" && currentFrame.id === newFrame.id &&
+  return newFrame instanceof Element && newFrame.nodeName === "BOOST-FRAME" && currentFrame.id === newFrame.id &&
   (!newFrame.getAttribute("src") || urlsAreEqual(currentFrame.src ?? "", newFrame.getAttribute("src") ?? ""))
 }
 
 export function closestFrameReloadableWithMorphing(node: Node) {
-  return node.parentElement?.closest("turbo-frame[src][refresh=morph]")
+  return node.parentElement?.closest("boost-frame[src][refresh=morph]")
 }
 
 class DefaultIdiomorphCallbacks implements IdiomorphCallbacks {
@@ -68,13 +68,13 @@ class DefaultIdiomorphCallbacks implements IdiomorphCallbacks {
   }
 
   beforeNodeAdded = (node: Node) => {
-    return !(node instanceof Element && node.id && node.hasAttribute("data-turbo-permanent") && document.getElementById(node.id))
+    return !(node instanceof Element && node.id && node.hasAttribute("data-boost-permanent") && document.getElementById(node.id))
   }
 
   beforeNodeMorphed = (currentElement: Node, newElement?: Node) => {
     if (currentElement instanceof Element) {
-      if (!currentElement.hasAttribute("data-turbo-permanent") && this.#beforeNodeMorphed(currentElement, newElement)) {
-        const event = dispatch("turbo:before-morph-element", {
+      if (!currentElement.hasAttribute("data-boost-permanent") && this.#beforeNodeMorphed(currentElement, newElement)) {
+        const event = dispatch("boost:before-morph-element", {
           cancelable: true,
           target: currentElement,
           detail: { currentElement, newElement }
@@ -88,7 +88,7 @@ class DefaultIdiomorphCallbacks implements IdiomorphCallbacks {
   }
 
   beforeAttributeUpdated = (attributeName: string, target: Element, mutationType: "update" | "remove") => {
-    const event = dispatch("turbo:before-morph-attribute", {
+    const event = dispatch("boost:before-morph-attribute", {
       cancelable: true,
       target,
       detail: { attributeName, mutationType }
@@ -103,7 +103,7 @@ class DefaultIdiomorphCallbacks implements IdiomorphCallbacks {
 
   afterNodeMorphed = (currentElement: Node, newElement?: Node) => {
     if (currentElement instanceof Element) {
-      dispatch("turbo:morph-element", {
+      dispatch("boost:morph-element", {
         target: currentElement,
         detail: { currentElement, newElement }
       })

@@ -1,13 +1,13 @@
 import { unindent, getCspNonce } from "../../util"
 
-export const ProgressBarID = "turbo-progress-bar"
+export const ProgressBarID = "boost-progress-bar"
 
 export class ProgressBar {
   static animationDuration = 300 /*ms*/
 
   static get defaultCSS() {
     return unindent`
-      .turbo-progress-bar {
+      .boost-progress-bar {
         position: fixed;
         display: block;
         top: 0;
@@ -121,7 +121,7 @@ export class ProgressBar {
 
   createProgressElement() {
     const element = document.createElement("div")
-    element.className = "turbo-progress-bar"
+    element.className = "boost-progress-bar"
     return element
   }
 }

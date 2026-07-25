@@ -3,10 +3,10 @@ import "./elements"
 import "./script_warning"
 import { StreamActions } from "./core/streams/stream_actions"
 
-import * as Turbo from "./core"
+import * as Boost from "./core"
 
-window.Turbo = { ...Turbo, StreamActions }
-Turbo.start()
+window.Boost = { ...Boost, StreamActions }
+Boost.start()
 
 export { StreamActions }
 export * from "./core"

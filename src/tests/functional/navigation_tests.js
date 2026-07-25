@@ -23,32 +23,32 @@ test.beforeEach(async ({ page }) => {
   await readEventLogs(page)
 })
 
-test("navigating renders a progress bar until the next turbo:load", async ({ page }) => {
-  await page.evaluate(() => window.Turbo.setProgressBarDelay(0))
+test("navigating renders a progress bar until the next boost:load", async ({ page }) => {
+  await page.evaluate(() => window.Boost.setProgressBarDelay(0))
   await page.click("#delayed-link")
 
-  await expect(page.locator(".turbo-progress-bar"), "displays progress bar").toBeAttached()
+  await expect(page.locator(".boost-progress-bar"), "displays progress bar").toBeAttached()
 
-  await nextEventNamed(page, "turbo:render")
-  await expect(page.locator(".turbo-progress-bar"), "displays progress bar").toBeAttached()
+  await nextEventNamed(page, "boost:render")
+  await expect(page.locator(".boost-progress-bar"), "displays progress bar").toBeAttached()
 
-  await nextEventNamed(page, "turbo:load")
-  await expect(page.locator(".turbo-progress-bar"), "hides progress bar").not.toBeAttached()
+  await nextEventNamed(page, "boost:load")
+  await expect(page.locator(".boost-progress-bar"), "hides progress bar").not.toBeAttached()
 })
 
 test("navigating does not render a progress bar before expiring the delay", async ({ page }) => {
-  await page.evaluate(() => window.Turbo.setProgressBarDelay(1000))
+  await page.evaluate(() => window.Boost.setProgressBarDelay(1000))
   await page.click("#same-origin-unannotated-link")
 
-  await expect(page.locator(".turbo-progress-bar"), "does not show progress bar before delay").not.toBeAttached()
+  await expect(page.locator(".boost-progress-bar"), "does not show progress bar before delay").not.toBeAttached()
 })
 
 test("navigating hides the progress bar on failure", async ({ page }) => {
-  await page.evaluate(() => window.Turbo.setProgressBarDelay(0))
+  await page.evaluate(() => window.Boost.setProgressBarDelay(0))
   await page.click("#delayed-failure-link")
 
-  await expect(page.locator(".turbo-progress-bar")).toBeAttached()
-  await expect(page.locator(".turbo-progress-bar")).not.toBeAttached()
+  await expect(page.locator(".boost-progress-bar")).toBeAttached()
+  await expect(page.locator(".boost-progress-bar")).not.toBeAttached()
 })
 
 test("after loading the page", async ({ page }) => {
@@ -95,7 +95,7 @@ test("drive enabled; click an element in the shadow DOM wrapped by a link in the
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("drive disabled; click an element in the shadow DOM within data-turbo='false'", async ({ page }) => {
+test("drive disabled; click an element in the shadow DOM within data-boost='false'", async ({ page }) => {
   await page.click("#shadow-dom-drive-disabled span")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
@@ -109,14 +109,14 @@ test("drive enabled; click an element in the slot", async ({ page }) => {
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("drive disabled; click an element in the slot within data-turbo='false'", async ({ page }) => {
+test("drive disabled; click an element in the slot within data-boost='false'", async ({ page }) => {
   await page.click("#element-in-slot-disabled")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("load")
 })
 
-test("drive disabled; click an element in the nested slot within data-turbo='false'", async ({ page }) => {
+test("drive disabled; click an element in the nested slot within data-boost='false'", async ({ page }) => {
   await page.click("#element-in-nested-slot-disabled")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
@@ -138,75 +138,75 @@ test("following a same-origin unannotated form[method=GET]", async ({ page }) =>
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("following a same-origin data-turbo-method=get link", async ({ page }) => {
+test("following a same-origin data-boost-method=get link", async ({ page }) => {
   await page.click("#same-origin-get-link-form")
-  await nextEventNamed(page, "turbo:submit-start")
-  await nextEventNamed(page, "turbo:submit-end")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:submit-start")
+  await nextEventNamed(page, "boost:submit-end")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/navigation.html"))
   await expect(page).toHaveURL(withSearchParam("a", "one"))
   await expect(page).toHaveURL(withSearchParam("b", "two"))
 })
 
-test("following a same-origin data-turbo-action=replace link", async ({ page }) => {
+test("following a same-origin data-boost-action=replace link", async ({ page }) => {
   await page.click("#same-origin-replace-link")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a same-origin GET form[data-turbo-action=replace]", async ({ page }) => {
+test("following a same-origin GET form[data-boost-action=replace]", async ({ page }) => {
   await page.click("#same-origin-replace-form-get button")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a same-origin GET form button[data-turbo-action=replace]", async ({ page }) => {
+test("following a same-origin GET form button[data-boost-action=replace]", async ({ page }) => {
   await page.click("#same-origin-replace-form-submitter-get button")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a same-origin POST form[data-turbo-action=replace]", async ({ page }) => {
+test("following a same-origin POST form[data-boost-action=replace]", async ({ page }) => {
   await page.click("#same-origin-replace-form-post button")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a same-origin POST form button[data-turbo-action=replace]", async ({ page }) => {
+test("following a same-origin POST form button[data-boost-action=replace]", async ({ page }) => {
   await page.click("#same-origin-replace-form-submitter-post button")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a same-origin POST link with data-turbo-action=replace", async ({ page }) => {
+test("following a same-origin POST link with data-boost-action=replace", async ({ page }) => {
   await page.click("#same-origin-replace-post-link")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("following a same-origin data-turbo=false link", async ({ page }) => {
+test("following a same-origin data-boost=false link", async ({ page }) => {
   await page.click("#same-origin-false-link")
   await page.waitForEvent("load")
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("load")
 })
 
-test("following a same-origin unannotated link inside a data-turbo=false container", async ({ page }) => {
+test("following a same-origin unannotated link inside a data-boost=false container", async ({ page }) => {
   await page.click("#same-origin-unannotated-link-inside-false-container")
   await page.waitForEvent("load")
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("load")
 })
 
-test("following a same-origin data-turbo=true link inside a data-turbo=false container", async ({ page }) => {
+test("following a same-origin data-boost=true link inside a data-boost=false container", async ({ page }) => {
   await page.click("#same-origin-true-link-inside-false-container")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
@@ -318,7 +318,7 @@ test("clicking an SVG link with a hash-only href scrolls to the anchor without a
 
 test("clicking the back button", async ({ page }) => {
   await page.click("#same-origin-unannotated-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await page.goBack()
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/navigation.html"))
   expect(await visitAction(page)).toEqual("restore")
@@ -326,7 +326,7 @@ test("clicking the back button", async ({ page }) => {
 
 test("clicking the forward button", async ({ page }) => {
   await page.click("#same-origin-unannotated-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await page.goBack()
   await page.goForward()
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
@@ -335,17 +335,17 @@ test("clicking the forward button", async ({ page }) => {
 
 test("form submissions that redirect to a different location have a default advance action", async ({ page }) => {
   await page.click("#redirect-submit")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   expect(await visitAction(page)).toEqual("advance")
 })
 
 test("form submissions that redirect to the current location have a default replace action", async ({ page }) => {
   await page.click("#refresh-submit")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   expect(await visitAction(page)).toEqual("replace")
 })
 
-test("link targeting a disabled turbo-frame navigates the page", async ({ page }) => {
+test("link targeting a disabled boost-frame navigates the page", async ({ page }) => {
   await page.click("#link-to-disabled-frame")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/frames/hello.html"))
@@ -403,7 +403,7 @@ test("following a redirection", async ({ page }) => {
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
   expect(await visitAction(page)).toEqual("replace")
-  await expect(page.locator(".turbo-progress-bar")).not.toBeAttached()
+  await expect(page.locator(".boost-progress-bar")).not.toBeAttached()
 })
 
 test("clicking the back button after redirection", async ({ page }) => {
@@ -416,11 +416,11 @@ test("clicking the back button after redirection", async ({ page }) => {
 
 test("same-page anchor visits do not trigger visit events", async ({ page }) => {
   const events = [
-    "turbo:before-visit",
-    "turbo:visit",
-    "turbo:before-render",
-    "turbo:render",
-    "turbo:load"
+    "boost:before-visit",
+    "boost:visit",
+    "boost:before-render",
+    "boost:render",
+    "boost:load"
   ]
 
   for (const eventName in events) {
@@ -432,7 +432,7 @@ test("same-page anchor visits do not trigger visit events", async ({ page }) => 
 
 test("correct referrer header", async ({ page }) => {
   page.click("#headers-link")
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   const pre = await page.textContent("pre")
   const headers = await JSON.parse(pre || "")
   expect(
@@ -447,16 +447,16 @@ test("double-clicking on a link", async ({ page }) => {
   await page.click("#delayed-link", { clickCount: 2 })
   await nextBeat()
 
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/__turbo/delayed_response"))
   expect(await visitAction(page)).toEqual("advance")
 })
 
-test("does not fire turbo:load twice after following a redirect", async ({ page }) => {
+test("does not fire boost:load twice after following a redirect", async ({ page }) => {
   await page.evaluate(() => {
-    window.turboLoadCount = 0
-    addEventListener("turbo:load", () => window.turboLoadCount++)
+    window.boostLoadCount = 0
+    addEventListener("boost:load", () => window.boostLoadCount++)
   })
 
   page.click("#redirection-link")
@@ -465,19 +465,19 @@ test("does not fire turbo:load twice after following a redirect", async ({ page 
 
   await nextBeat() // 200 response
   await nextBody(page)
-  await nextEventNamed(page, "turbo:load")
+  await nextEventNamed(page, "boost:load")
   await nextBeat()
 
-  expect(await page.evaluate(() => window.turboLoadCount)).toEqual(1)
+  expect(await page.evaluate(() => window.boostLoadCount)).toEqual(1)
 })
 
 test("navigating back whilst a visit is in-flight", async ({ page }) => {
   page.click("#delayed-link")
-  await nextEventNamed(page, "turbo:before-render")
+  await nextEventNamed(page, "boost:before-render")
   await page.goBack()
 
   expect(
-    await nextEventNamed(page, "turbo:visit"),
+    await nextEventNamed(page, "boost:visit"),
     "navigating back whilst a visit is in-flight starts a non-silent Visit"
   ).toBeTruthy()
 
@@ -488,7 +488,7 @@ test("navigating back whilst a visit is in-flight", async ({ page }) => {
 test("ignores links with a [target] attribute that target an iframe with a matching [name]", async ({ page }) => {
   await page.click("#link-target-iframe")
   await nextBeat()
-  await noNextEventNamed(page, "turbo:load")
+  await noNextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/navigation.html"))
   expect(await pathnameForIFrame(page, "iframe")).toEqual("/src/tests/fixtures/one.html")
@@ -497,7 +497,7 @@ test("ignores links with a [target] attribute that target an iframe with a match
 test("ignores links with a [target] attribute that targets an iframe with [name='']", async ({ page }) => {
   await page.click("#link-target-empty-name-iframe")
   await nextBeat()
-  await noNextEventNamed(page, "turbo:load")
+  await noNextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
 })
@@ -511,7 +511,7 @@ test("ignores forms with a [target=_blank] attribute", async ({ page }) => {
 test("ignores forms with a [target] attribute that targets an iframe with a matching [name]", async ({ page }) => {
   await page.click("#form-target-iframe button")
   await nextBeat()
-  await noNextEventNamed(page, "turbo:load")
+  await noNextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/navigation.html"))
   expect(await pathnameForIFrame(page, "iframe")).toEqual("/src/tests/fixtures/one.html")
@@ -526,7 +526,7 @@ test("ignores forms with a button[formtarget=_blank] attribute", async ({ page }
 test("ignores forms with a button[formtarget] attribute that targets an iframe with [name='']", async ({ page }) => {
   await page.click("#form-target-empty-name-iframe button")
   await nextBeat()
-  await noNextEventNamed(page, "turbo:load")
+  await noNextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
 })
@@ -536,7 +536,7 @@ test("ignores forms with a button[formtarget] attribute that targets an iframe w
 }) => {
   await page.click("#button-formtarget-iframe")
   await nextBeat()
-  await noNextEventNamed(page, "turbo:load")
+  await noNextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/navigation.html"))
   expect(await pathnameForIFrame(page, "iframe")).toEqual("/src/tests/fixtures/one.html")
@@ -545,7 +545,7 @@ test("ignores forms with a button[formtarget] attribute that targets an iframe w
 test("ignores forms with a [target] attribute that target an iframe with [name='']", async ({ page }) => {
   await page.click("#button-formtarget-empty-name-iframe")
   await nextBeat()
-  await noNextEventNamed(page, "turbo:load")
+  await noNextEventNamed(page, "boost:load")
 
   await expect(page).toHaveURL(withPathname("/src/tests/fixtures/one.html"))
 })

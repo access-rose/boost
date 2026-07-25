@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Drive (Disabled by Default)</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
     <script type="module">
       addEventListener("click", event => {
@@ -15,13 +15,13 @@
       })
     </script>
     <script>
-      Turbo.config.drive.enabled = false
+      Boost.config.drive.enabled = false
     </script>
   </head>
   <body>
     <h1>Drive (Disabled by Default)</h1>
 
-    <div data-turbo="true">
+    <div data-boost="true">
       <a id="drive_enabled" href="/src/tests/fixtures/drive_disabled.html">Drive enabled link</a>
     </div>
 
@@ -29,13 +29,13 @@
       <a id="drive_disabled" href="/src/tests/fixtures/drive_disabled.html">Drive disabled link</a>
     </div>
 
-    <form action="/__turbo/redirect" method="post" id="no_submitter_drive_enabled" data-turbo="true">
+    <form action="/__turbo/redirect" method="post" id="no_submitter_drive_enabled" data-boost="true">
       <input type="hidden" name="path" value="/src/tests/fixtures/form.html">
       <input type="hidden" name="greeting" value="Hello from a redirect">
       <a href="#" id="requestSubmit">Drive enabled submit via JS</a>
     </form>
 
-    <turbo-frame id="frame">
+    <boost-frame id="frame">
       <h2>Hello from a frame</h2>
 
       <a href="/src/tests/fixtures/drive_disabled.html">Navigate #frame</a>
@@ -45,6 +45,6 @@
       <custom-link-element link="/src/tests/fixtures/frames/frame.html">
         <span id="frame-navigation-with-slot">Link in slot</span>
       </custom-link-element>
-    </turbo-frame>
+    </boost-frame>
   </body>
 </html>

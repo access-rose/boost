@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8">
     <title>Frames: Form</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
   </head>
   <body>
     <h1>Frames: Form</h1>
 
-    <turbo-frame id="frame">
+    <boost-frame id="frame">
       <form action="/__turbo/messages" method="post" class="stream">
         <input type="hidden" name="content" value="Hello!">
         <input id="frames-form-first-autofocus-element" autofocus type="submit">
@@ -19,6 +19,6 @@
       </div>
 
       <button type="button" id="frames-form-second-autofocus-element" autofocus>Second autofocus</button>
-    </turbo-frame>
+    </boost-frame>
   </body>
 </html>

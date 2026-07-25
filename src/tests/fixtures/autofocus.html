@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>Autofocus</title>
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
-    <meta name="turbo-refresh-method" content="morph">
-    <meta name="turbo-refresh-scroll" content="preserve">
+    <meta name="boost-refresh-method" content="morph">
+    <meta name="boost-refresh-scroll" content="preserve">
   </head>
   <body>
     <h1>Autofocus</h1>
@@ -15,15 +15,15 @@
     <button autofocus id="second-autofocus-element" type="button">Second [autofocus]</button>
 
     <a id="autofocus-inert-link" href="/src/tests/fixtures/autofocus-inert.html">autofocus-inert.html link</a>
-    <a id="frame-outer-link" href="/src/tests/fixtures/frames/form.html" data-turbo-frame="frame">Outer #frame link to frames/form.html</a>
+    <a id="frame-outer-link" href="/src/tests/fixtures/frames/form.html" data-boost-frame="frame">Outer #frame link to frames/form.html</a>
 
-    <turbo-frame id="frame">
+    <boost-frame id="frame">
       <a id="frame-inner-link" href="/src/tests/fixtures/frames/form.html">Inner #frame link to frames/form.html</a>
-    </turbo-frame>
+    </boost-frame>
 
-    <turbo-frame id="drives-frame" target="frame">
+    <boost-frame id="drives-frame" target="frame">
       <a id="drives-frame-target-link" href="/src/tests/fixtures/frames/form.html">#drives-frame link to frames/form.html</a>
-    </turbo-frame>
+    </boost-frame>
 
     <form id="form" action="/__turbo/refresh" method="post" class="redirect">
       <input id="form-text" type="text" name="text" value="" autofocus>

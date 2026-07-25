@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html id="html" data-skip-event-details="turbo:submit-start turbo:submit-end turbo:fetch-request-error">
+<html id="html" data-skip-event-details="boost:submit-start boost:submit-end boost:fetch-request-error">
   <head>
     <meta charset="utf-8">
-    <meta name="turbo-refresh-scroll" content="preserve">
+    <meta name="boost-refresh-scroll" content="preserve">
 
-    <title>Turbo</title>
+    <title>Boost</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-    <script src="/dist/turbo.es2017-umd.js" data-turbo-track="reload"></script>
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
     <script src="/src/tests/fixtures/test.js"></script>
 
     <style>
@@ -23,15 +23,15 @@
   <body>
     <h1>Page to be refreshed</h1>
 
-    <turbo-frame id="refresh-morph" src="/src/tests/fixtures/frame_refresh_morph.html" refresh="morph">
+    <boost-frame id="refresh-morph" src="/src/tests/fixtures/frame_refresh_morph.html" refresh="morph">
       <h2>Frame to be morphed</h2>
-    </turbo-frame>
+    </boost-frame>
 
-    <turbo-frame id="refresh-reload" src="/src/tests/fixtures/frame_refresh_reload.html" refresh="reload">
+    <boost-frame id="refresh-reload" src="/src/tests/fixtures/frame_refresh_reload.html" refresh="reload">
       <h2>Frame to be reloaded</h2>
-    </turbo-frame>
+    </boost-frame>
 
-    <div id="preserve-me" data-turbo-permanent>
+    <div id="preserve-me" data-boost-permanent>
       Preserve me!
     </div>
 

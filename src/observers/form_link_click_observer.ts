@@ -29,7 +29,7 @@ export class FormLinkClickObserver implements LinkClickObserverDelegate {
   willFollowLinkToLocation(link: Element, location: URL, originalEvent: MouseEvent) {
     return (
       this.delegate.willSubmitFormLinkToLocation(link, location, originalEvent) &&
-      (link.hasAttribute("data-turbo-method") || link.hasAttribute("data-turbo-stream"))
+      (link.hasAttribute("data-boost-method") || link.hasAttribute("data-boost-stream"))
     )
   }
 
@@ -42,29 +42,29 @@ export class FormLinkClickObserver implements LinkClickObserverDelegate {
     }
 
     const action = Object.assign(location, { search: "" })
-    form.setAttribute("data-turbo", "true")
+    form.setAttribute("data-boost", "true")
     form.setAttribute("action", action.href)
     form.setAttribute("hidden", "")
 
-    const method = link.getAttribute("data-turbo-method")
+    const method = link.getAttribute("data-boost-method")
     if (method) form.setAttribute("method", method)
 
-    const turboFrame = link.getAttribute("data-turbo-frame")
-    if (turboFrame) form.setAttribute("data-turbo-frame", turboFrame)
+    const boostFrame = link.getAttribute("data-boost-frame")
+    if (boostFrame) form.setAttribute("data-boost-frame", boostFrame)
 
-    const turboAction = getVisitAction(link)
-    if (turboAction) form.setAttribute("data-turbo-action", turboAction)
+    const boostAction = getVisitAction(link)
+    if (boostAction) form.setAttribute("data-boost-action", boostAction)
 
-    const turboConfirm = link.getAttribute("data-turbo-confirm")
-    if (turboConfirm) form.setAttribute("data-turbo-confirm", turboConfirm)
+    const boostConfirm = link.getAttribute("data-boost-confirm")
+    if (boostConfirm) form.setAttribute("data-boost-confirm", boostConfirm)
 
-    const turboStream = link.hasAttribute("data-turbo-stream")
-    if (turboStream) form.setAttribute("data-turbo-stream", "")
+    const boostStream = link.hasAttribute("data-boost-stream")
+    if (boostStream) form.setAttribute("data-boost-stream", "")
 
     this.delegate.submittedFormLinkToLocation(link, location, form)
 
     document.body.appendChild(form)
-    form.addEventListener("turbo:submit-end", () => form.remove(), { once: true })
+    form.addEventListener("boost:submit-end", () => form.remove(), { once: true })
     requestAnimationFrame(() => form.requestSubmit())
   }
 }
