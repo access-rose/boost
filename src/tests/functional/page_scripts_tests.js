@@ -28,6 +28,14 @@ test("connects and renders the scripts a page declares, after the page's head sc
   expect(log).toEqual(["app:connect:dep=true", "a:connect:dep=true", "app:render", "a:render"])
 })
 
+test("renders each active script exactly once on the initial page load", async ({ page }) => {
+  await page.goto("/src/tests/fixtures/page_scripts_a.html")
+  const log = await readLog(page)
+
+  const rendered = log.filter((entry) => entry.endsWith(":render"))
+  expect(rendered).toEqual(["app:render", "a:render"])
+})
+
 test("disconnects departing scripts, connects entering ones, and keeps shared scripts connected", async ({ page }) => {
   await page.goto("/src/tests/fixtures/page_scripts_a.html")
   await readLog(page)

@@ -16,10 +16,12 @@ export interface PageScript {
 export class PageScripts {
   #registry = new Map<string, PageScript>()
   #connected = new Set<string>()
+  #interactive = false
 
   register(name: string, script: PageScript) {
     this.#registry.set(name, script)
-    if (this.#activeNames().has(name)) {
+    // make sure connect and render are called once
+    if (this.#interactive && this.#activeNames().has(name)) {
       this.#connect(name)
       this.#render(name)
     }
@@ -47,6 +49,7 @@ export class PageScripts {
   }
 
   connectAndRender() {
+    this.#interactive = true
     const active = this.#activeNames()
     for (const name of active) this.#connect(name)
     for (const name of active) this.#render(name)
