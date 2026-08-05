@@ -16,13 +16,19 @@ Boost is **not** wire-compatible with Turbo. If you're coming from Turbo:
 * **There is no snapshot cache and no preview.** Every navigation issues one request at click time and renders once. Back/Forward re-fetch from the network. `Boost.cache`, `boost:before-cache`, `data-boost-preload`, and `data-boost-prefetch` do not exist.
 * **Form submissions that return `200` without a redirect render in place** (like a `422` does) instead of raising "Form responses must redirect to another location" — so a server can re-render a form with validation errors at a `200`.
 * **New: a page-script lifecycle** (below) — the reason this fork exists.
+* **Typescript Support** uses Typescript and exports types.
+
+Streams are still available in this package, but we don't use Streams and it hasn't been validated with changes beyond the test framework. 
 
 ## Page-script lifecycle
 
 A page declares the scripts it wants active with a `<meta>` tag, and registers their behavior by name:
 
 ```html
-<!-- in the page's <head> (put shared ones in your layout) -->
+<!--
+in the page's <head> (put shared ones in your layout)
+"app" is just to demonstrate multiple names. You only need to add that if you want some scripts to run globally.
+-->
 <meta name="boost-script" content="app editor">
 ```
 
@@ -39,8 +45,8 @@ Boost.registerScript("editor", {
 
 * runs **`connect`** once, when a name first appears (after the new `<body>` is in place **and** the page's own `<head>` scripts have executed — see below);
 * runs **`render`** on every render while the name stays active (so a script shared across pages via your layout stays connected and just re-runs `render` — no teardown/rebuild churn);
-* runs **`disconnect`** once, when a name is no longer present, just before the old `<body>` is swapped out;
 * runs **`beforeLeave`** before every Boost navigation — returning `false` **cancels** it, which is how you prompt about unsaved changes.
+* runs **`disconnect`** once, when a name is no longer present, just before the old `<body>` is swapped out;
 
 `registerScript` also accepts an array — `Boost.registerScript(["app", "admin"], { … })` — to register one handler under several names. All four callbacks are optional and receive a `{ name }` context (`beforeLeave` also gets `{ to }`, the destination URL).
 
