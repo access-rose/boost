@@ -118,13 +118,20 @@ test("registering a script for a page already showing connects it immediately", 
   expect(afterRegister).toEqual(["late:connect:dep=true", "late:render"])
 })
 
-test("one handler registered for several names connects on any of them", async ({ page }) => {
+test("one handler registered for several names runs each event once when several are active", async ({ page }) => {
   await page.goto("/src/tests/fixtures/page_scripts_a.html")
   await readLog(page)
 
-  const log = await visit(page, "#link-multi")
+  // page_scripts_multi.html declares content="multi1 multi2" — both names resolve to
+  // the same handler, which must still connect and render exactly once.
+  const entering = await visit(page, "#link-multi")
+  expect(entering).toContain("multi:connect:dep=true")
+  expect(entering.filter((entry) => entry === "multi:connect:dep=true")).toHaveLength(1)
+  expect(entering.filter((entry) => entry === "multi:render")).toHaveLength(1)
 
-  expect(log).toContain("multi:connect:dep=true")
+  // Leaving the page (neither name active on A) disconnects the handler exactly once.
+  const leaving = await visit(page, "#link-a")
+  expect(leaving.filter((entry) => entry === "multi:disconnect")).toHaveLength(1)
 })
 
 test("navigating back re-fetches and re-runs the lifecycle", async ({ page }) => {

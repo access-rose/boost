@@ -15,26 +15,28 @@ export interface PageScript {
 
 export class PageScripts {
   #registry = new Map<string, PageScript>()
-  #connected = new Set<string>()
+  #connected = new Map<PageScript, string>()
   #interactive = false
 
   register(name: string, script: PageScript) {
     this.#registry.set(name, script)
     // make sure connect and render are called once
     if (this.#interactive && this.#activeNames().has(name)) {
-      this.#connect(name)
-      this.#render(name)
+      this.#connect(script, name)
+      this.#render(script)
     }
   }
 
   unregister(name: string) {
-    this.#disconnect(name)
+    const script = this.#registry.get(name)
     this.#registry.delete(name)
+    // disconnect once the handler is no longer reachable via any other name.
+    if (script && !this.#hasName(script)) this.#disconnect(script)
   }
 
   allowLeaving(to: URL) {
-    for (const name of this.#connected) {
-      if (this.#registry.get(name)?.beforeLeave?.({ name, to }) === false) {
+    for (const [script, name] of this.#connected) {
+      if (script.beforeLeave?.({ name, to }) === false) {
         return false
       }
     }
@@ -42,25 +44,23 @@ export class PageScripts {
   }
 
   disconnectDeparting() {
-    const active = this.#activeNames()
-    for (const name of [...this.#connected]) {
-      if (!active.has(name)) this.#disconnect(name)
+    const active = this.#activeScripts()
+    for (const script of [...this.#connected.keys()]) {
+      if (!active.has(script)) this.#disconnect(script)
     }
   }
 
   connectAndRender() {
     this.#interactive = true
-    const active = this.#activeNames()
-    for (const name of active) this.#connect(name)
-    for (const name of active) this.#render(name)
+    const active = this.#activeScripts()
+    for (const [script, name] of active) this.#connect(script, name)
+    for (const script of active.keys()) this.#render(script)
   }
 
-  #connect(name: string) {
-    if (this.#connected.has(name)) return
-    const script = this.#registry.get(name)
-    if (!script) return
+  #connect(script: PageScript, name: string) {
+    if (this.#connected.has(script)) return
 
-    this.#connected.add(name)
+    this.#connected.set(script, name)
     try {
       script.connect?.({ name })
     } catch (error) {
@@ -68,24 +68,44 @@ export class PageScripts {
     }
   }
 
-  #render(name: string) {
-    if (!this.#connected.has(name)) return
+  #render(script: PageScript) {
+    const name = this.#connected.get(script)
+    if (name === undefined) return
     try {
-      this.#registry.get(name)?.render?.({ name })
+      script.render?.({ name })
     } catch (error) {
       console.error(error)
     }
   }
 
-  #disconnect(name: string) {
-    if (!this.#connected.has(name)) return
+  #disconnect(script: PageScript) {
+    const name = this.#connected.get(script)
+    if (name === undefined) return
 
-    this.#connected.delete(name)
+    this.#connected.delete(script)
     try {
-      this.#registry.get(name)?.disconnect?.({ name })
+      script.disconnect?.({ name })
     } catch (error) {
       console.error(error)
     }
+  }
+
+  // De-duplicated set of active, registered scripts, mapped to the first active
+  // name that resolves to each — so a handler under several active names appears once.
+  #activeScripts() {
+    const scripts = new Map<PageScript, string>()
+    for (const name of this.#activeNames()) {
+      const script = this.#registry.get(name)
+      if (script && !scripts.has(script)) scripts.set(script, name)
+    }
+    return scripts
+  }
+
+  #hasName(script: PageScript) {
+    for (const registered of this.#registry.values()) {
+      if (registered === script) return true
+    }
+    return false
   }
 
   #activeNames() {
