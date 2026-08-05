@@ -8,13 +8,15 @@ export class ProgressBar {
   static get defaultCSS() {
     return unindent`
       .boost-progress-bar {
-        position: fixed;
-        display: block;
-        top: 0;
-        left: 0;
-        height: 3px;
-        background: #0076ff;
-        z-index: 2147483647;
+        position: var(--boost-progress-bar-position, fixed);
+        display: var(--boost-progress-bar-display, block);
+        top: var(--boost-progress-bar-top, 0);
+        left: var(--boost-progress-bar-left, 0);
+        height: var(--boost-progress-bar-height, 3px);
+        background-color: var(--boost-progress-bar-background-color, #0076ff);
+        border-radius: var(--boost-progress-bar-border-radius, 0);
+        box-shadow: var(--boost-progress-bar-box-shadow, none);
+        z-index: var(--boost-progress-bar-z-index, 2147483647);
         transition:
           width ${ProgressBar.animationDuration}ms ease-out,
           opacity ${ProgressBar.animationDuration / 2}ms ${ProgressBar.animationDuration / 2}ms ease-in;
