@@ -423,10 +423,22 @@ test("same-page anchor visits do not trigger visit events", async ({ page }) => 
     "boost:load"
   ]
 
-  for (const eventName in events) {
+  for (const eventName of events) {
     await page.goto("/src/tests/fixtures/navigation.html")
+    await readEventLogs(page)
     await page.click('a[href="#main"]')
     expect(await noNextEventNamed(page, eventName), `same-page links do not trigger ${eventName} events`).toEqual(true)
+  }
+})
+
+test("same-page anchor visits inside an SVG element do not trigger visit events", async ({ page }) => {
+  const events = ["boost:before-visit", "boost:visit", "boost:before-render", "boost:render", "boost:load"]
+
+  for (const eventName of events) {
+    await page.goto("/src/tests/fixtures/navigation.html")
+    await readEventLogs(page)
+    await page.dispatchEvent("#same-origin-anchored-svg-link", "click")
+    expect(await noNextEventNamed(page, eventName), `same-page SVG links do not trigger ${eventName} events`).toEqual(true)
   }
 })
 
