@@ -12,6 +12,7 @@ export interface ViewRenderOptions<E extends Element> {
 
 export interface ViewDelegate<S extends Snapshot<Element>> {
   allowsImmediateRender(snapshot: S, options: ViewRenderOptions<S["element"]>): boolean
+  viewWillRenderSnapshot?(snapshot: S, renderMethod: string): void
   viewRenderedSnapshot(snapshot: S, renderMethod: string): void
   viewInvalidated(reason: ReloadReason): void
 }
@@ -102,6 +103,7 @@ export abstract class View<
         const immediateRender = this.delegate.allowsImmediateRender(snapshot, options)
         if (!immediateRender) await renderInterception
 
+        this.delegate.viewWillRenderSnapshot?.(snapshot, this.renderer.renderMethod)
         await this.renderSnapshot(renderer)
         this.delegate.viewRenderedSnapshot(snapshot, this.renderer.renderMethod)
         this.finishRenderingSnapshot(renderer)

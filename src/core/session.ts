@@ -330,7 +330,6 @@ export class Session
   // Page view delegate
 
   allowsImmediateRender({ element }: PageSnapshot, options: PageViewRenderOptions) {
-    this.scripts.disconnectDeparting()
     const event = this.notifyApplicationBeforeRender(element, options)
     const {
       defaultPrevented,
@@ -342,6 +341,10 @@ export class Session
     }
 
     return !defaultPrevented
+  }
+
+  viewWillRenderSnapshot(_snapshot: PageSnapshot, _renderMethod: string) {
+    this.scripts.disconnectDeparting()
   }
 
   viewRenderedSnapshot(_snapshot: PageSnapshot, renderMethod: string) {

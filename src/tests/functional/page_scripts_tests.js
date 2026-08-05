@@ -134,6 +134,42 @@ test("one handler registered for several names runs each event once when several
   expect(leaving.filter((entry) => entry === "multi:disconnect")).toHaveLength(1)
 })
 
+test("a cancelled boost:before-render does not disconnect scripts while the page stays put", async ({ page }) => {
+  await page.goto("/src/tests/fixtures/page_scripts_a.html")
+  await readLog(page)
+
+  // Prevent the render without ever resuming it: the visit defers forever and the body
+  // never swaps, so departing scripts must not be torn down. (Boost updates history
+  // optimistically, so the URL changes — the un-swapped body is what proves we stayed.)
+  await page.evaluate(() => addEventListener("boost:before-render", (event) => event.preventDefault()))
+  await page.click("#link-b")
+  await nextEventNamed(page, "boost:before-render")
+
+  await expect(page.locator("h1"), "old body is still on screen — render never committed").toHaveText("A")
+  const log = await readLog(page)
+  expect(log.join(","), "departing 'a' is not disconnected").not.toContain("a:disconnect")
+  expect(log.join(","), "entering 'b' never connects").not.toContain("b:connect")
+})
+
+test("a deferred boost:before-render still disconnects departing scripts once resumed", async ({ page }) => {
+  await page.goto("/src/tests/fixtures/page_scripts_a.html")
+  await readLog(page)
+
+  // Prevent then resume on the next tick: the body swaps, so departing 'a' must still
+  // disconnect, and it must do so before entering 'b' connects.
+  await page.evaluate(() =>
+    addEventListener("boost:before-render", (event) => {
+      event.preventDefault()
+      setTimeout(() => event.detail.resume(), 0)
+    })
+  )
+  const log = await visit(page, "#link-b")
+
+  expect(log).toContain("a:disconnect")
+  expect(log).toContain("b:connect:dep=true")
+  expect(log.indexOf("a:disconnect"), "disconnect precedes connect").toBeLessThan(log.indexOf("b:connect:dep=true"))
+})
+
 test("navigating back re-fetches and re-runs the lifecycle", async ({ page }) => {
   await page.goto("/src/tests/fixtures/page_scripts_a.html")
   await visit(page, "#link-b")
