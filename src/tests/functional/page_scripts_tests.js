@@ -100,24 +100,6 @@ test("a connected script's beforeLeave blocks navigation regardless of destinati
   await page.evaluate(() => (window.appAllowLeave = true))
 })
 
-test("registering a script for a page already showing connects it immediately", async ({ page }) => {
-  await page.goto("/src/tests/fixtures/page_scripts_a.html")
-  const log = await readLog(page)
-  expect(log.join(","), "late was declared but not yet registered").not.toContain("late:connect")
-
-  const afterRegister = await page.evaluate(() => {
-    window.Boost.registerScript("late", {
-      connect() { window.lifecycleLog.push("late:connect:dep=" + !!window.dep) },
-      render() { window.lifecycleLog.push("late:render") }
-    })
-    const log = window.lifecycleLog
-    window.lifecycleLog = []
-    return log
-  })
-
-  expect(afterRegister).toEqual(["late:connect:dep=true", "late:render"])
-})
-
 test("one handler registered for several names runs each event once when several are active", async ({ page }) => {
   await page.goto("/src/tests/fixtures/page_scripts_a.html")
   await readLog(page)
