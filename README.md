@@ -16,6 +16,7 @@ Boost is **not** wire-compatible with Turbo. If you're coming from Turbo:
 * **There is no snapshot cache and no preview.** Every navigation issues one request at click time and renders once. Back/Forward re-fetch from the network. `Boost.cache`, `boost:before-cache`, `data-boost-preload`, and `data-boost-prefetch` do not exist.
 * **Form submissions that return `200` without a redirect render in place** (like a `422` does) instead of raising "Form responses must redirect to another location" — so a server can re-render a form with validation errors at a `200`.
 * **New: a page-script lifecycle** (below) — the reason this fork exists.
+* **Events after the `<body>` swap fire in a fixed order, and only once the new page's `<head>` scripts have loaded.** Boost awaits the incoming `<head>`'s external `<script src>` *during* the head merge — before the swap — which Turbo does not. So after the body is replaced the order is: a page script's `connect`/`render` callbacks → **`boost:render`** (the new body is in place; `{ renderMethod }`) → **`boost:load`** (the visit has completed; `{ url, timing }`) — and none of them can fire before that page's own initialization scripts have run. See [Navigation events](#navigation-events) for the full sequence and how `boost:render` differs from `boost:load`.
 * **Typescript Support** uses Typescript and exports types.
 
 Streams are still available in this package, but we don't use Streams and it hasn't been validated with changes beyond the test framework. 
@@ -108,6 +109,31 @@ Because a script only runs on pages whose `<meta>` names it, page code never fir
 * **`connect`/`render` run after the page's own `<head>` scripts have executed.** Boost awaits new external `<script src>` in the head (the way it already awaits stylesheets), so `boost:load` — and your `connect` — no longer fire *before* a page's initialization script has loaded.
 * **`beforeLeave` only covers Boost navigations** (link clicks, `Boost.visit`, form submissions). It cannot cancel browser **Back/Forward** or **tab close / refresh** — for those, add a native `window` `beforeunload` listener in `connect` and remove it in `disconnect`.
 * **`beforeLeave` also fires on the page's own form submission** (a redirecting POST is a navigation). Clear your "dirty" state on `boost:submit-start` so saving doesn't prompt.
+
+## Navigation events
+
+Every Boost navigation fires **`boost:before-visit` first, then `boost:visit`** — before-visit is your chance to cancel, visit announces that the navigation is going ahead:
+
+* **`boost:before-visit`** fires at *proposal time, before any request is made*. It is **cancelable** — call `event.preventDefault()` to stop the navigation and stay on the current page. Detail: `{ url }` (the destination).
+* **`boost:visit`** fires *once the visit has started* (after `boost:before-visit` was allowed), as the request goes out. It is **not** cancelable — by this point the navigation is committed. Detail: `{ url, action }`, where `action` is `"advance"`, `"replace"`, or `"restore"`.
+
+Within a single link-driven navigation the order is:
+
+```
+boost:click ──► boost:before-visit ──► boost:visit ──► boost:before-render ──► boost:render ──► boost:load
+ (link only)     (cancelable)          (committed)
+```
+
+`boost:before-visit` fires for link clicks, `Boost.visit()`, and form submissions. **Back/Forward** (history restoration) skips it — restoration visits are not proposed and cannot be cancelled — but still fires `boost:visit` (with `action: "restore"`). To guard against leaving on Back/Forward, use a native `window` `beforeunload` listener, not `boost:before-visit`.
+
+### `boost:render` vs `boost:load`
+
+These two look alike because they usually fire back-to-back at the end of a navigation, but they are subtly different:
+
+* **`boost:render`** is a *rendering* signal — it fires **after Boost swaps the page `<body>`**. Detail: `{ renderMethod }` (`"replace"` for a normal navigation, `"morph"` for a refresh). It fires on ordinary visits, on morph/refresh re-renders, and on **in-place re-renders** such as a form coming back with validation errors (a `422`, or a `200` without a redirect) — anywhere the DOM is replaced. It does **not** fire on the first, server-rendered page load, because nothing was swapped.
+* **`boost:load`** is a *navigation-complete* signal — it fires when **a page is fully loaded and settled**, the Boost equivalent of `DOMContentLoaded` that also fires across Drive navigations. Detail: `{ url, timing }` (the final URL and visit timing metrics). It fires once on the initial page load and once after each completed visit.
+
+Rule of thumb: prefer registering scripts instead of events. Otherwise, **initialize your page in `boost:load`** — it fires once per page you land on, including the first server-rendered load. **Use `boost:render` only when you specifically need to react to a DOM swap** — e.g. to re-apply behavior after a validation-error re-render, or to branch on `renderMethod`. In a normal navigation `boost:render` fires first (the new body is in place) and `boost:load` follows once the visit completes; the initial page load is the one case that fires `boost:load` with no preceding `boost:render`.
 
 ## Contributing
 
