@@ -61,8 +61,8 @@ export class Renderer<E extends Element, S extends Snapshot<E> = Snapshot<E>> im
     }
   }
 
-  async preservingPermanentElements(callback: () => void) {
-    await Bardo.preservingPermanentElements(this, this.permanentElementMap, callback)
+  async preservingPermanentElements(callback: () => void | Promise<void>) {
+    await Bardo.preservingPermanentElements(this, this.permanentElementMap, callback, true)
   }
 
   focusFirstAutofocusableElement() {

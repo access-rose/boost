@@ -1,6 +1,7 @@
 import { Idiomorph } from "idiomorph"
 import type { IdiomorphCallbacks, IdiomorphConfig } from "idiomorph"
 import { FrameElement } from "../elements/frame_element"
+import { elementIsPermanent } from "./expected_permanent_elements"
 import { dispatch } from "../util"
 import { urlsAreEqual } from "./url"
 
@@ -68,12 +69,12 @@ class DefaultIdiomorphCallbacks implements IdiomorphCallbacks {
   }
 
   beforeNodeAdded = (node: Node) => {
-    return !(node instanceof Element && node.id && node.hasAttribute("data-boost-permanent") && document.getElementById(node.id))
+    return !(node instanceof Element && elementIsPermanent(node) && document.getElementById(node.id))
   }
 
   beforeNodeMorphed = (currentElement: Node, newElement?: Node) => {
     if (currentElement instanceof Element) {
-      if (!currentElement.hasAttribute("data-boost-permanent") && this.#beforeNodeMorphed(currentElement, newElement)) {
+      if (!elementIsPermanent(currentElement) && this.#beforeNodeMorphed(currentElement, newElement)) {
         const event = dispatch("boost:before-morph-element", {
           cancelable: true,
           target: currentElement,

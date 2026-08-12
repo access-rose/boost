@@ -1,5 +1,6 @@
-import { activateScriptElement, elementIsStylesheet, waitForLoad } from "../../util"
+import { activateScriptElement, elementIsStylesheet, moveElementBefore, waitForLoad } from "../../util"
 import { Renderer } from "../renderer"
+import { expectedPermanentElements } from "../expected_permanent_elements"
 import type { PageSnapshot } from "./page_snapshot"
 
 export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
@@ -88,10 +89,30 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
   }
 
   async replaceBody() {
+    this.relocateExpectedPermanentElements()
     await this.preservingPermanentElements(async () => {
       this.activateNewBody()
       await this.assignNewBody()
     })
+  }
+
+  relocateExpectedPermanentElements() {
+    const expectedIds = expectedPermanentElements.activeIds()
+
+    for (const id of expectedIds) {
+      const currentElement = document.body.querySelector(`#${id}`)
+      // Skip when the destination renders its own copy — that's the classic
+      // permanent case, not a client-only injection to carry over.
+      if (currentElement && !this.newElement.querySelector(`#${id}`)) {
+        moveElementBefore(document.documentElement, currentElement, null)
+        currentElement.setAttribute("data-boost-parked", "")
+      }
+    }
+
+    // Drop any previously-parked element the destination no longer expects.
+    for (const parkedElement of document.querySelectorAll("[data-boost-parked]")) {
+      if (!expectedIds.has(parkedElement.id)) parkedElement.remove()
+    }
   }
 
   get trackedElementsAreIdentical() {
