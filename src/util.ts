@@ -28,6 +28,26 @@ function copyElementAttributes(destinationElement: Element, sourceElement: Eleme
   }
 }
 
+// Inserts `node` into `parent` before `referenceNode`
+export function moveElementBefore(parent: Element, node: Node, referenceNode: Node | null) {
+  // prefer the atomic Element#moveBefore so an <iframe> in the moved subtree keeps its content instead of reloading.
+  if (
+    typeof parent.moveBefore === "function" &&
+    parent.isConnected === node.isConnected &&
+    node.ownerDocument === parent.ownerDocument
+  ) {
+    try {
+      parent.moveBefore(node, referenceNode)
+      return
+    } catch {
+      // moveBefore rejects some node relationships (e.g. an ancestor move); a
+      // regular insert is always valid, so fall through to it.
+    }
+  }
+
+  parent.insertBefore(node, referenceNode)
+}
+
 export function createDocumentFragment(html: string): DocumentFragment {
   const template = document.createElement("template")
   template.innerHTML = html

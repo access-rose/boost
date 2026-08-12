@@ -11,6 +11,8 @@ test("Boost interface", () => {
   assert.equal(typeof Boost.connectStreamSource, "function")
   assert.equal(typeof Boost.disconnectStreamSource, "function")
   assert.equal(typeof Boost.renderStreamMessage, "function")
+  assert.equal(typeof Boost.addExpectedPermanentId, "function")
+  assert.equal(typeof Boost.removeExpectedPermanentId, "function")
   assert.equal(typeof Boost.setProgressBarDelay, "function")
   assert.equal(typeof Boost.setConfirmMethod, "function")
   assert.equal(typeof Boost.setFormMode, "function")

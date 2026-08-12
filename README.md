@@ -124,7 +124,7 @@ boost:click ──► boost:before-visit ──► boost:visit ──► boost:b
  (link only)     (cancelable)          (committed)
 ```
 
-`boost:before-visit` fires for link clicks, `Boost.visit()`, and form submissions. **Back/Forward** (history restoration) skips it — restoration visits are not proposed and cannot be cancelled — but still fires `boost:visit` (with `action: "restore"`). To guard against leaving on Back/Forward, use a native `window` `beforeunload` listener, not `boost:before-visit`.
+`boost:before-visit` fires for link clicks, `Boost.visit()`, and form submissions. **Back/Forward** (history restoration) skips it — restoration visits are not proposed and cannot be canceled — but still fires `boost:visit` (with `action: "restore"`). To guard against leaving on Back/Forward, use a native `window` `beforeunload` listener, not `boost:before-visit`.
 
 ### `boost:render` vs `boost:load`
 
@@ -134,6 +134,25 @@ These two look alike because they usually fire back-to-back at the end of a navi
 * **`boost:load`** is a *navigation-complete* signal — it fires when **a page is fully loaded and settled**, the Boost equivalent of `DOMContentLoaded` that also fires across Drive navigations. Detail: `{ url, timing }` (the final URL and visit timing metrics). It fires once on the initial page load and once after each completed visit.
 
 Rule of thumb: prefer registering scripts instead of events. Otherwise, **initialize your page in `boost:load`** — it fires once per page you land on, including the first server-rendered load. **Use `boost:render` only when you specifically need to react to a DOM swap** — e.g. to re-apply behavior after a validation-error re-render, or to branch on `renderMethod`. In a normal navigation `boost:render` fires first (the new body is in place) and `boost:load` follows once the visit completes; the initial page load is the one case that fires `boost:load` with no preceding `boost:render`.
+
+## Expected permanent elements
+
+A common complaint with Turbo has been that third-party integrations are difficult to preserve across page visits. Things like chat widgets, support frame, etc, are dynamically added to the page then lost on navigation.
+
+Elements marked `data-boost-permanent` are preserved across navigations — but that only works when the element is in the server HTML of *both* the page you're leaving and the page you're entering, because Boost uses the incoming copy as the slot to teleport the live element into.
+
+Boost adds **Expected permanent elements** for these integrations, specifically using new browser APIs to avoid cloning and reloading iframes.  Declare them per page with a `<meta>` in the head:
+
+```html
+<meta name="boost-expected-permanent-ids" content="intercom-container cookie-banner">
+```
+
+Or register ids from code. Programmatic ids persist until you remove them (independent of any page's meta), which suits a widget you load once and want on every page:
+
+```js
+Boost.addExpectedPermanentId("intercom-container")     // or an array of ids
+Boost.removeExpectedPermanentId("intercom-container")
+```
 
 ## Contributing
 

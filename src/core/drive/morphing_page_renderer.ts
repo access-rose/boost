@@ -26,6 +26,10 @@ export class MorphingPageRenderer extends PageRenderer {
     return await callback()
   }
 
+  relocateExpectedPermanentElements() {
+    return
+  }
+
   get renderMethod() {
     return "morph"
   }

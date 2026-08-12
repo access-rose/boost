@@ -4,6 +4,7 @@ import { PageSnapshot } from "./drive/page_snapshot"
 import { FrameRenderer } from "./frames/frame_renderer"
 import { fetch, recentRequests } from "../http/fetch"
 import { config } from "./config"
+import { expectedPermanentElements } from "./expected_permanent_elements"
 import { MorphingPageRenderer } from "./drive/morphing_page_renderer"
 import { MorphingFrameRenderer } from "./frames/morphing_frame_renderer"
 import type { Adapter } from "./native/adapter"
@@ -32,7 +33,7 @@ export type {
 } from "./session"
 
 export { morphChildren, morphElements } from "./morphing"
-export { PageRenderer, PageSnapshot, FrameRenderer, fetch, config }
+export { PageRenderer, PageSnapshot, FrameRenderer, fetch, config, expectedPermanentElements }
 
 const session = new Session(recentRequests)
 
@@ -73,6 +74,27 @@ export function registerAdapter(adapter: Adapter) {
  */
 export function registerScript(names: string | string[], script: PageScript) {
   for (const name of Array.isArray(names) ? names : [names]) session.scripts.register(name, script)
+}
+
+/**
+ * Marks one or more element IDs as expected to become permanent — preserved
+ * across navigations like `data-boost-permanent` elements, but for nodes that
+ * aren't in the server HTML yet (typically injected client-side by third-party
+ * integrations).
+ *
+ * @param ids Element ID, or IDs
+ */
+export function addExpectedPermanentId(ids: string | string[]) {
+  for (const id of Array.isArray(ids) ? ids : [ids]) expectedPermanentElements.add(id)
+}
+
+/**
+ * Removes one or more IDs previously registered with `addExpectedPermanentId`.
+ *
+ * @param ids Element ID, or IDs, to stop preserving
+ */
+export function removeExpectedPermanentId(ids: string | string[]) {
+  for (const id of Array.isArray(ids) ? ids : [ids]) expectedPermanentElements.remove(id)
 }
 
 /**
