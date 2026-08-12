@@ -17,6 +17,20 @@ import type { PageScript } from "./drive/page_scripts"
 
 export type { PageScript, PageScriptContext, LeaveContext } from "./drive/page_scripts"
 
+// Event types, so library consumers can type their listeners, e.g.
+// `addEventListener("boost:render", (e: BoostRenderEvent) => …)`.
+export type {
+  TimingData,
+  BoostBeforeRenderEvent,
+  BoostBeforeVisitEvent,
+  BoostClickEvent,
+  BoostFrameLoadEvent,
+  BoostFrameRenderEvent,
+  BoostLoadEvent,
+  BoostRenderEvent,
+  BoostVisitEvent
+} from "./session"
+
 export { morphChildren, morphElements } from "./morphing"
 export { PageRenderer, PageSnapshot, FrameRenderer, fetch, config }
 
@@ -76,6 +90,23 @@ export function registerScript(names: string | string[], script: PageScript) {
  */
 export function visit(location: Locatable, options?: Partial<VisitOptions>) {
   session.visit(location, options)
+}
+
+/**
+ * Reloads the current page in place — re-fetches the current URL and re-renders
+ * through Boost (not a browser reload). Unlike `session.refresh`, it performs no
+ * same-URL / dedup / in-flight checks: it always reloads.
+ *
+ * By default it morphs the page (`method: "morph"`), preserving focus, scroll,
+ * and unmanaged DOM. Pass `{ method: "replace" }` for a full `<body>` swap.
+ *
+ * @param options Options to apply
+ * @param options.method "morph" (default) to morph the page, "replace" for a full swap
+ * @param options.scroll "reset" (default) or "preserve" to keep the scroll position
+ */
+export function reload(options: { method?: "morph" | "replace"; scroll?: "reset" | "preserve" } = {}) {
+  const { method = "morph", scroll } = options
+  session.visit(window.location.href, { action: "replace", refresh: { method, scroll } })
 }
 
 /**

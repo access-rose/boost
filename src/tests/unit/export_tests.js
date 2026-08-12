@@ -7,6 +7,7 @@ test("Boost interface", () => {
   assert.equal(typeof Boost.start, "function")
   assert.equal(typeof Boost.registerAdapter, "function")
   assert.equal(typeof Boost.visit, "function")
+  assert.equal(typeof Boost.reload, "function")
   assert.equal(typeof Boost.connectStreamSource, "function")
   assert.equal(typeof Boost.disconnectStreamSource, "function")
   assert.equal(typeof Boost.renderStreamMessage, "function")
