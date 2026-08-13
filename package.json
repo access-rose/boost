@@ -1,6 +1,6 @@
 {
   "name": "@rosarium/boost",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "The speed of a single-page web application without having to write any JavaScript",
   "module": "dist/boost.es2017-esm.js",
   "main": "dist/boost.es2017-umd.js",
