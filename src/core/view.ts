@@ -2,7 +2,7 @@ import { getAnchor } from "./url"
 import type { Renderer, Render } from "./renderer"
 import type { Snapshot } from "./snapshot"
 import type { Position } from "./types"
-import type { ReloadReason } from "./native/browser_adapter"
+import type { ReloadReason, StructuredReason } from "./native/browser_adapter"
 
 export interface ViewRenderOptions<E extends Element> {
   resume: (value?: unknown) => void
@@ -12,9 +12,10 @@ export interface ViewRenderOptions<E extends Element> {
 
 export interface ViewDelegate<S extends Snapshot<Element>> {
   allowsImmediateRender(snapshot: S, options: ViewRenderOptions<S["element"]>): boolean
-  viewWillRenderSnapshot?(snapshot: S, renderMethod: string): void
+  viewWillRenderSnapshot(snapshot: S, renderMethod: string): void
   viewRenderedSnapshot(snapshot: S, renderMethod: string): void
   viewInvalidated(reason: ReloadReason): void
+  viewAllowsReload(reason: StructuredReason): boolean
 }
 
 export abstract class View<
@@ -103,7 +104,7 @@ export abstract class View<
         const immediateRender = this.delegate.allowsImmediateRender(snapshot, options)
         if (!immediateRender) await renderInterception
 
-        this.delegate.viewWillRenderSnapshot?.(snapshot, this.renderer.renderMethod)
+        this.delegate.viewWillRenderSnapshot(snapshot, this.renderer.renderMethod)
         await this.renderSnapshot(renderer)
         this.delegate.viewRenderedSnapshot(snapshot, this.renderer.renderMethod)
         this.finishRenderingSnapshot(renderer)

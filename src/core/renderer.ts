@@ -13,6 +13,10 @@ export type Render<E extends Element> = (currentElement: E, newElement: E) => vo
 export class Renderer<E extends Element, S extends Snapshot<E> = Snapshot<E>> implements BardoDelegate {
   #activeElement: Element | null = null
 
+  // Set when the application cancels a forced reload (boost:before-reload) so the
+  // renderer renders in place instead.
+  reloadCanceled = false
+
   declare ["constructor"]: { renderElement: Render<E> }
 
   declare readonly currentSnapshot: S

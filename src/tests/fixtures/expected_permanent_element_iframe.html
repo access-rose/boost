@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boost</title>
+    <meta name="boost-expected-permanent-ids" content="widget">
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
+    <script src="/src/tests/fixtures/test.js"></script>
+    <script>
+      // Inject a widget containing an <iframe> once, mimicking a third-party
+      // integration whose state (the iframe's document) must survive navigation.
+      addEventListener("boost:load", () => {
+        if (window.widgetInjectedCount) return
+        const widget = document.createElement("div")
+        widget.id = "widget"
+        const frame = document.createElement("iframe")
+        frame.id = "widget-frame"
+        frame.src = "/src/tests/fixtures/iframe_content.html"
+        widget.appendChild(frame)
+        document.body.appendChild(widget)
+        window.widgetInjectedCount = 1
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Expected permanent with iframe</h1>
+    <p><a id="advance" href="/src/tests/fixtures/expected_permanent_element_target.html">Advance</a></p>
+  </body>
+</html>

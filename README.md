@@ -135,6 +135,22 @@ These two look alike because they usually fire back-to-back at the end of a navi
 
 Rule of thumb: prefer registering scripts instead of events. Otherwise, **initialize your page in `boost:load`** — it fires once per page you land on, including the first server-rendered load. **Use `boost:render` only when you specifically need to react to a DOM swap** — e.g. to re-apply behavior after a validation-error re-render, or to branch on `renderMethod`. In a normal navigation `boost:render` fires first (the new body is in place) and `boost:load` follows once the visit completes; the initial page load is the one case that fires `boost:load` with no preceding `boost:render`.
 
+### Tracked element reloads — `boost:before-reload`
+
+When a `data-boost-track="reload"` head element (typically your JS/CSS bundle) differs between the current page and the destination, or a page sets `<meta name="boost-visit-control" content="reload">`, Boost falls back to a **full browser reload** instead of a Drive render. A full reload wipes everything — including persistent elements (see below) — which is a problem when you have third-party widgets.
+
+**`boost:before-reload`** fires *before* such a reload and is **cancelable**. Call `event.preventDefault()` to skip the reload and **render the fetched page in place** instead (a normal Boost render/morph, so persistent elements are preserved). Detail: `{ reason }` — `"tracked_element_mismatch"` or `"boost_visit_control_is_reload"` — so you can cancel selectively:
+
+```js
+document.addEventListener("boost:before-reload", (event: BoostBeforeReloadEvent) => {
+  if (event.detail.reason === "tracked_element_mismatch") {
+    event.preventDefault()
+  }
+})
+```
+
+`boost:before-reload` only fires for these render-time reloads; request failures and other hard reloads are not affected. This is a good time to prompt the user to save their work to reload the new version of the app.
+
 ## Expected permanent elements
 
 A common complaint with Turbo has been that third-party integrations are difficult to preserve across page visits. Things like chat widgets, support frame, etc, are dynamically added to the page then lost on navigation.

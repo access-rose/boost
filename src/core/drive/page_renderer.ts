@@ -13,7 +13,7 @@ export class PageRenderer extends Renderer<HTMLElement, PageSnapshot> {
   }
 
   get shouldRender() {
-    return this.newSnapshot.isVisitable && this.trackedElementsAreIdentical
+    return this.reloadCanceled || (this.newSnapshot.isVisitable && this.trackedElementsAreIdentical)
   }
 
   get reloadReason() {
