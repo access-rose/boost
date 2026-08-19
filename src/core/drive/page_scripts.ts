@@ -87,7 +87,7 @@ export class PageScripts {
   // name that resolves to each — so a handler under several active names appears once.
   #activeScripts() {
     const scripts = new Map<PageScript, string>()
-    for (const name of this.#activeNames()) {
+    for (const name of this.activeNames()) {
       const script = this.#registry.get(name)
       if (script && !scripts.has(script)) scripts.set(script, name)
     }
@@ -101,7 +101,7 @@ export class PageScripts {
     return false
   }
 
-  #activeNames() {
+  activeNames() {
     const names = new Set<string>()
     for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="boost-script"]')) {
       for (const name of (meta.content || "").split(/\s+/)) {

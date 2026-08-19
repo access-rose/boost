@@ -36,6 +36,7 @@ import type { ViewDelegate, ViewRenderOptions } from "../view"
 import type { SubmitterElement } from "../config/forms"
 import type { VisitOptions } from "../drive/visit"
 import { BoostFrameMissingError } from "../errors"
+import type { StructuredReason } from "../native/browser_adapter"
 
 export class FrameController
   implements
@@ -318,6 +319,12 @@ export class FrameController
   viewRenderedSnapshot(_snapshot: Snapshot<FrameElement>, _renderMethod: string) {}
 
   viewInvalidated() {}
+
+  viewWillRenderSnapshot(_snapshot: Snapshot<FrameElement>, _renderMethod: string) {}
+
+  viewAllowsReload(_reason: StructuredReason) {
+    return true
+  }
 
   // Private
 

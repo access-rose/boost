@@ -23,7 +23,7 @@ import type { HistoryDirection } from "./drive/history"
 import type { VisitRefresh } from "./drive/visit"
 import type { SubmitterElement } from "./config/forms"
 import type { PageSnapshot } from "./drive/page_snapshot"
-import type { ReloadReason } from "./native/browser_adapter"
+import type { ReloadReason, StructuredReason } from "./native/browser_adapter"
 import type { FetchResponse } from "../http/fetch_response"
 import type { PageViewRenderOptions, PageViewDelegate } from "./drive/page_view"
 import type { Adapter } from "./native/adapter"
@@ -47,6 +47,8 @@ export type BoostFrameRenderEvent = CustomEvent<{ fetchResponse: FetchResponse }
 export type BoostLoadEvent = CustomEvent<{ url: string; timing: TimingData }>
 export type BoostRenderEvent = CustomEvent<{ renderMethod: string }>
 export type BoostVisitEvent = CustomEvent<{ url: string; action: Action }>
+export type BoostBeforeReloadEvent = CustomEvent<StructuredReason>
+export type BoostReloadEvent = CustomEvent<StructuredReason>
 
 export class Session
   implements
@@ -357,6 +359,10 @@ export class Session
     this.adapter.pageInvalidated(reason)
   }
 
+  viewAllowsReload(reason: StructuredReason) {
+    return !this.notifyApplicationBeforeReload(reason).defaultPrevented
+  }
+
   // Frame element
 
   frameLoaded(frame: FrameElement) {
@@ -390,6 +396,13 @@ export class Session
   notifyApplicationBeforeVisitingLocation(location: URL) {
     return dispatch("boost:before-visit", {
       detail: { url: location.href },
+      cancelable: true
+    })
+  }
+
+  notifyApplicationBeforeReload(reason: StructuredReason) {
+    return dispatch("boost:before-reload", {
+      detail: reason,
       cancelable: true
     })
   }

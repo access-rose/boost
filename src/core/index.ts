@@ -29,7 +29,9 @@ export type {
   BoostFrameRenderEvent,
   BoostLoadEvent,
   BoostRenderEvent,
-  BoostVisitEvent
+  BoostVisitEvent,
+  BoostBeforeReloadEvent,
+  BoostReloadEvent
 } from "./session"
 
 export { morphChildren, morphElements } from "./morphing"

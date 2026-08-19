@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boost</title>
+    <meta name="boost-expected-permanent-ids" content="widget">
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
+    <script src="/src/tests/fixtures/test.js"></script>
+    <script>
+      // Stand in for a third-party integration: inject #widget into <body> exactly
+      // once per browser session. The window-level guard mirrors a real widget
+      // that bootstraps a single time and never re-creates itself — so if the
+      // node isn't preserved across a navigation, nothing silently re-injects it.
+      addEventListener("boost:load", () => {
+        if (window.widgetInjectedCount) return
+        const element = document.createElement("div")
+        element.id = "widget"
+        element.textContent = "Injected widget"
+        document.body.appendChild(element)
+        window.widgetInjectedCount = 1
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Expected permanent (with meta)</h1>
+    <p><a id="link-with-meta" href="/src/tests/fixtures/expected_permanent_element_target.html">Target with meta</a></p>
+    <p><a id="link-without-meta" href="/src/tests/fixtures/expected_permanent_element_without_meta.html">Target without meta</a></p>
+  </body>
+</html>

@@ -26,10 +26,16 @@ export class PageView extends View<HTMLElement, PageSnapshot, PageViewRenderer, 
 
     const renderer = new rendererClass(this.snapshot, snapshot, willRender)
 
-    if (!renderer.shouldRender) {
-      this.forceReloaded = true
-    } else {
+    if (renderer.shouldRender) {
       visit?.changeHistory()
+    } else {
+      const reason = renderer.reloadReason
+      if (reason && !this.delegate.viewAllowsReload(reason)) {
+        renderer.reloadCanceled = true
+        visit?.changeHistory()
+      } else {
+        this.forceReloaded = true
+      }
     }
 
     return this.render(renderer)

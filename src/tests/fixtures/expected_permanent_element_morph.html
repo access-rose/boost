@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boost</title>
+    <meta name="boost-refresh-method" content="morph">
+    <meta name="boost-expected-permanent-ids" content="widget">
+    <script src="/dist/boost.es2017-umd.js" data-boost-track="reload"></script>
+    <script src="/src/tests/fixtures/test.js"></script>
+    <script>
+      addEventListener("boost:load", () => {
+        if (window.widgetInjectedCount) return
+        const element = document.createElement("div")
+        element.id = "widget"
+        element.textContent = "Injected widget"
+        document.body.appendChild(element)
+        window.widgetInjectedCount = 1
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Expected permanent (morph refresh)</h1>
+  </body>
+</html>
