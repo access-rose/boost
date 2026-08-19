@@ -72,6 +72,7 @@ module.exports = {
   },
   globals: {
     test: true,
-    setup: true
+    setup: true,
+    teardown: true
   }
 }
