@@ -3,44 +3,79 @@ name: CI
 on: [pull_request]
 
 jobs:
-  build:
-
+  lint:
     runs-on: ubuntu-22.04
-
     steps:
-    - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
-      with:
-        persist-credentials: false
-    - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
-      with:
-        node-version: '22'
-        cache: 'yarn'
-    - run: yarn install --frozen-lockfile
-    - run: yarn run playwright install --with-deps
-    - run: yarn build
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Typecheck
+        run: yarn typecheck
+      - name: Lint
+        run: yarn lint
 
-    - name: Typecheck
-      run: yarn typecheck
+  unit:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Unit tests run under chromium, firefox and webkit (web-test-runner).
+      - name: Cache Playwright browsers
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-all-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn playwright install --with-deps chromium firefox webkit
+      - name: Unit Test
+        run: yarn test:unit
 
-    - name: Set Chrome Version
-      run: |
-        CHROMEVER="$(chromedriver --version | cut -d' ' -f2)"
-        echo "Actions ChromeDriver is $CHROMEVER"
-        echo "CHROMEVER=${CHROMEVER}" >> $GITHUB_ENV
+  chrome:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Functional tests load the built bundle from dist/.
+      - run: yarn build
+      - name: Cache Playwright browsers
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn playwright install --with-deps chromium
+      - name: Chrome Test
+        run: yarn test:browser --project=chrome
 
-    - name: Lint
-      run: yarn lint
+  firefox:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - name: Cache Playwright browsers
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-firefox-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn playwright install --with-deps firefox
+      - name: Firefox Test
+        run: yarn test:browser --project=firefox
 
-    - name: Unit Test
-      run: yarn test:unit
-
-    - name: Chrome Test
-      run: yarn test:browser --project=chrome
-
-    - name: Firefox Test
-      run: yarn test:browser --project=firefox
-
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      with:
-        name: boost-dist
-        path: dist/*
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: boost-dist
+          path: dist/*
