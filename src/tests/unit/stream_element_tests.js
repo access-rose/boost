@@ -30,6 +30,12 @@ setup(() => {
   subject.fixtureHTML = `<div><div id="hello">Hello Boost</div></div>`
 })
 
+teardown(() => {
+  // A refresh dedupes against recent request ids; clear them so state from one
+  // test can't leak into the next.
+  Boost.session.recentRequests.clear()
+})
+
 test("action=append", async () => {
   const element = createStreamElement("append", "hello", createTemplateElement("<span> Streams</span>"))
   const element2 = createStreamElement("append", "hello", createTemplateElement("<span> and more</span>"))
@@ -247,10 +253,12 @@ test("test action=refresh", async () => {
   document.body.setAttribute("data-modified", "")
   assert.ok(document.body.hasAttribute("data-modified"))
 
+  // the refresh is debounced
+  const refreshed = new Promise((resolve) => addEventListener("boost:load", resolve, { once: true }))
   const element = createStreamElement("refresh")
   subject.append(element)
 
-  await sleep(250)
+  await Promise.race([refreshed, sleep(1000)])
 
   assert.notOk(document.body.hasAttribute("data-modified"))
 })
