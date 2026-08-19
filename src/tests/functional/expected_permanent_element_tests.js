@@ -93,6 +93,9 @@ const stampFrame = (page, selector) =>
 const frameMarker = (page, selector) =>
   page.evaluate((selector) => document.querySelector(selector)?.contentWindow?.boostReloadMarker, selector)
 
+const supportsAtomicMove = (page) =>
+  page.evaluate(() => typeof document.documentElement.moveBefore === "function")
+
 test("does not reload an <iframe> inside an expected permanent element", async ({ page }) => {
   await page.goto("/src/tests/fixtures/expected_permanent_element_iframe.html")
   await readEventLogs(page)
@@ -106,7 +109,9 @@ test("does not reload an <iframe> inside an expected permanent element", async (
 
   await expect(page.locator("h1")).toHaveText("Target with meta")
   expect(await strictElementEquals(widget, page.locator("#widget"))).toEqual(true)
-  expect(await frameMarker(page, "#widget-frame"), "the iframe was not reloaded").toEqual("kept")
+  if (await supportsAtomicMove(page)) {
+    expect(await frameMarker(page, "#widget-frame"), "the iframe was not reloaded").toEqual("kept")
+  }
 
   // The widget is parked on <html>, outside the swapped <body>.
   const placement = await page.evaluate(() => {
@@ -128,5 +133,7 @@ test("does not reload an <iframe> inside a data-boost-permanent element", async 
 
   await expect(page.locator("h1")).toHaveText("Permanent iframe target")
   expect(await strictElementEquals(permanent, page.locator("#perm"))).toEqual(true)
-  expect(await frameMarker(page, "#perm-frame"), "the iframe was not reloaded").toEqual("kept")
+  if (await supportsAtomicMove(page)) {
+    expect(await frameMarker(page, "#perm-frame"), "the iframe was not reloaded").toEqual("kept")
+  }
 })
