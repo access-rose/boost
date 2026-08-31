@@ -14,18 +14,26 @@ export interface PageScript {
 }
 
 export class PageScripts {
-  #registry = new Map<string, PageScript>()
+  #registry = new Map<string, Set<PageScript>>()
   #connected = new Map<PageScript, string>()
 
   register(name: string, script: PageScript) {
-    this.#registry.set(name, script)
+    const scripts = this.#registry.get(name)
+    if (scripts) {
+      scripts.add(script)
+    } else {
+      this.#registry.set(name, new Set([script]))
+    }
   }
 
   unregister(name: string) {
-    const script = this.#registry.get(name)
+    const scripts = this.#registry.get(name)
     this.#registry.delete(name)
     // disconnect once the handler is no longer reachable via any other name.
-    if (script && !this.#hasName(script)) this.#disconnect(script)
+    if (!scripts) return
+    for (const script of scripts) {
+      if (!this.#hasName(script)) this.#disconnect(script)
+    }
   }
 
   allowLeaving(to: URL) {
@@ -88,8 +96,11 @@ export class PageScripts {
   #activeScripts() {
     const scripts = new Map<PageScript, string>()
     for (const name of this.activeNames()) {
-      const script = this.#registry.get(name)
-      if (script && !scripts.has(script)) scripts.set(script, name)
+      const registered = this.#registry.get(name)
+      if (!registered) continue
+      for (const script of registered) {
+        if (registered && !scripts.has(script)) scripts.set(script, name)
+      }
     }
     return scripts
   }
